@@ -1,26 +1,145 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --color-paper: #ffffff;
+  --color-paper-dim: #f4f5f7;
+  --color-paper-line: #e3e5e9;
+
+  --color-ink: #0c0f0e;
+  --color-ink-soft: #171a19;
+  --color-ink-line: rgba(12, 15, 14, 0.1);
+
+  --color-mist: #8e9196;
+  --color-mist-dim: #5c5f65;
+  --color-mist-line: #dcdee2;
+
+  --color-moss: #6c63ff;
+  --color-moss-bright: #857dff;
+  --color-moss-soft: #eae8ff;
+  --color-moss-text: #4b40d6;
+
+  --font-display: var(--font-bricolage);
+  --font-body: var(--font-manrope);
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-paper: var(--color-paper);
+  --color-paper-dim: var(--color-paper-dim);
+  --color-paper-line: var(--color-paper-line);
+
+  --color-ink: var(--color-ink);
+  --color-ink-soft: var(--color-ink-soft);
+
+  --color-mist: var(--color-mist);
+  --color-mist-dim: var(--color-mist-dim);
+  --color-mist-line: var(--color-mist-line);
+
+  --color-moss: var(--color-moss);
+  --color-moss-bright: var(--color-moss-bright);
+  --color-moss-soft: var(--color-moss-soft);
+  --color-moss-text: var(--color-moss-text);
+
+  --font-display: var(--font-display);
+  --font-body: var(--font-body);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+* {
+  box-sizing: border-box;
+}
+
+html {
+  background: var(--color-paper);
+  scroll-behavior: auto;
+  --scatter-scale: 1;
+}
+
+@media (max-width: 700px) {
+  html {
+    --scatter-scale: 0.62;
   }
 }
 
+html.lenis {
+  height: auto;
+}
+
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+  overflow-x: clip;
+}
+
+::selection {
+  background: var(--color-moss);
+  color: var(--color-paper);
+}
+
+a,
+button {
+  -webkit-tap-highlight-color: transparent;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-moss);
+  outline-offset: 3px;
+}
+
+.font-display {
+  font-family: var(--font-display);
+}
+
+/* Faint structural grid motif, low-opacity, tiled behind content */
+.structural-grid {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: repeating-linear-gradient(
+    90deg,
+    var(--color-ink-line) 0,
+    var(--color-ink-line) 1px,
+    transparent 1px,
+    transparent clamp(60px, 8vw, 120px)
+  );
+  opacity: 0.5;
+}
+
+.structural-grid--dark {
+  background-image: repeating-linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.06) 0,
+    rgba(255, 255, 255, 0.06) 1px,
+    transparent 1px,
+    transparent clamp(60px, 8vw, 120px)
+  );
+}
+
+.text-balance {
+  text-wrap: balance;
+}
+
+/* Tiled plus-mark field that fades out toward the bottom, echoing the
+   reference site's header texture. */
+.plus-field {
+  position: absolute;
+  inset: 0;
+  height: min(560px, 60vh);
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Cpath d='M20 15v10M15 20h10' stroke='%23dcdae3' stroke-width='1.3' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 40px 40px;
+  opacity: 0.7;
+  -webkit-mask-image: linear-gradient(to bottom, black, transparent 92%);
+  mask-image: linear-gradient(to bottom, black, transparent 92%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
 }
