@@ -29,7 +29,6 @@ function AnimatedPractice() {
   const glowRef = useRef<HTMLDivElement>(null);
   const introRef = useRef<HTMLDivElement>(null);
   const cardsRef = useRef<(HTMLDivElement | null)[]>([]);
-  const helpRef = useRef<HTMLDivElement>(null);
   const reframeRef = useRef<HTMLDivElement>(null);
   const lineRefs = useRef<(HTMLParagraphElement | null)[]>([]);
   const ctaRef = useRef<HTMLDivElement>(null);
@@ -42,8 +41,12 @@ function AnimatedPractice() {
       // Visible by default (not scrub-driven) so it reads naturally while
       // the tall section scrolls into place, before the pin even engages.
       gsap.set(introRef.current, { autoAlpha: 1, y: 0, scale: 1, filter: "blur(0px)" });
+      // Cards start gathered at the centre, small and hidden (set via
+      // inline style above), then roll outward to their scatter position:
+      // the reverse of the old scatter to centre collapse, with the same
+      // rotations, positions, scale and stagger, only the travel direction
+      // inverts.
       gsap.set(cards, { autoAlpha: 0 });
-      gsap.set(helpRef.current, { autoAlpha: 0, scale: 0.82 });
       gsap.set(reframeRef.current, { autoAlpha: 0 });
       gsap.set(lines, { autoAlpha: 0, y: 18 });
       gsap.set(ctaRef.current, { autoAlpha: 0, y: 14 });
@@ -72,11 +75,11 @@ function AnimatedPractice() {
         0.3
       );
 
+      // Gather at the centre first.
       tl.to(
         cards,
         {
           autoAlpha: 1,
-          "--s": 1,
           duration: 0.5,
           ease: "power2.out",
           stagger: { each: 0.035, from: "random" },
@@ -84,14 +87,14 @@ function AnimatedPractice() {
         1.0
       );
 
+      // Then roll outward to each card's own scatter position.
       tl.to(
         cards,
         {
-          "--sx": "0vw",
-          "--sy": "0vh",
-          "--sr": "0deg",
-          "--s": 0.32,
-          autoAlpha: 0,
+          "--sx": (i: number) => `${painQuotes[i].x}vw`,
+          "--sy": (i: number) => `${painQuotes[i].y}vh`,
+          "--sr": (i: number) => `${painQuotes[i].rotate}deg`,
+          "--s": 1,
           duration: 1.1,
           ease: "power1.inOut",
           stagger: { each: 0.05, from: "random" },
@@ -100,13 +103,9 @@ function AnimatedPractice() {
       );
 
       tl.to(
-        helpRef.current,
-        { autoAlpha: 1, scale: 1, duration: 0.6, ease: "power2.out" },
-        2.6
-      ).to(
-        helpRef.current,
-        { autoAlpha: 0, scale: 1.06, duration: 0.5, ease: "power2.in" },
-        3.55
+        cards,
+        { autoAlpha: 0, duration: 0.5, ease: "power2.in" },
+        3.2
       );
 
       tl.to(
@@ -116,11 +115,11 @@ function AnimatedPractice() {
           duration: 0.8,
           ease: "power1.inOut",
         },
-        3.4
+        3.1
       ).to(
         glowRef.current,
         { opacity: 1, duration: 0.9, ease: "power1.out" },
-        3.5
+        3.2
       );
 
       tl.set(reframeRef.current, { autoAlpha: 1 }, 3.7);
@@ -182,10 +181,10 @@ function AnimatedPractice() {
           {painQuotes.map((q, i) => {
             const style: CardStyle = {
               width: `clamp(148px, 46vw, ${q.width}px)`,
-              "--sx": `${q.x}vw`,
-              "--sy": `${q.y}vh`,
-              "--sr": `${q.rotate}deg`,
-              "--s": 0.9,
+              "--sx": "0vw",
+              "--sy": "0vh",
+              "--sr": "0deg",
+              "--s": 0.32,
               transform:
                 "translate(-50%, -50%) translate(calc(var(--sx) * var(--scatter-scale)), calc(var(--sy) * var(--scatter-scale))) rotate(var(--sr)) scale(var(--s))",
               opacity: 0,
@@ -211,38 +210,36 @@ function AnimatedPractice() {
         </div>
 
         <div
-          ref={helpRef}
-          className="pointer-events-none absolute inset-0 flex items-center justify-center opacity-0"
-        >
-          <span className="font-display text-[clamp(4.5rem,20vw,14rem)] font-medium tracking-tight text-mist-dim">
-            Help.
-          </span>
-        </div>
-
-        <div
           ref={reframeRef}
-          className="absolute inset-0 flex flex-col items-center justify-center gap-6 px-6 text-center opacity-0 sm:gap-8"
+          className="absolute inset-0 flex flex-col items-center justify-center gap-5 px-6 text-center opacity-0 sm:gap-7"
         >
           <p
             ref={(el) => {
               lineRefs.current[0] = el;
             }}
-            className="max-w-[20ch] text-balance font-display text-[clamp(2.25rem,6.5vw,5.5rem)] font-bold leading-[1.02] tracking-tight text-ink"
+            className="max-w-[22ch] text-balance font-display text-[clamp(2rem,5.5vw,4rem)] font-bold leading-[1.05] tracking-tight text-ink"
           >
-            If this sounds familiar, you are not alone.
+            Most practice owners don&apos;t have a dentistry problem.
           </p>
           <p
             ref={(el) => {
               lineRefs.current[1] = el;
             }}
-            className="max-w-[34ch] text-balance text-xl font-medium leading-[1.35] text-ink/70 sm:text-3xl"
+            className="max-w-[22ch] text-balance font-display text-[clamp(2rem,5.5vw,4rem)] font-bold leading-[1.05] tracking-tight text-ink"
           >
-            Most owners don&apos;t have a dentistry problem. They have a
-            business problem.
+            They have a business problem.
           </p>
           <p
             ref={(el) => {
               lineRefs.current[2] = el;
+            }}
+            className="max-w-[34ch] text-balance text-xl font-medium leading-[1.35] text-ink/70 sm:text-3xl"
+          >
+            If this sounds familiar, you are not alone.
+          </p>
+          <p
+            ref={(el) => {
+              lineRefs.current[3] = el;
             }}
             className="max-w-[22ch] text-balance font-display text-[clamp(2.25rem,6.5vw,5.5rem)] font-bold leading-[1.02] tracking-tight text-moss-text"
           >
@@ -282,16 +279,15 @@ function StaticPractice() {
           ))}
         </div>
 
-        <div className="mt-20 flex flex-col items-center gap-6 text-center sm:gap-8">
-          <span className="font-display text-6xl font-medium text-mist-dim">
-            Help.
-          </span>
-          <p className="max-w-[20ch] text-balance font-display text-[clamp(2.25rem,6.5vw,5.5rem)] font-bold leading-[1.02] tracking-tight text-ink">
-            If this sounds familiar, you are not alone.
+        <div className="mt-20 flex flex-col items-center gap-5 text-center sm:gap-7">
+          <p className="max-w-[22ch] text-balance font-display text-[clamp(2rem,5.5vw,4rem)] font-bold leading-[1.05] tracking-tight text-ink">
+            Most practice owners don&apos;t have a dentistry problem.
+          </p>
+          <p className="max-w-[22ch] text-balance font-display text-[clamp(2rem,5.5vw,4rem)] font-bold leading-[1.05] tracking-tight text-ink">
+            They have a business problem.
           </p>
           <p className="max-w-[34ch] text-balance text-xl font-medium leading-[1.35] text-ink/70 sm:text-3xl">
-            Most owners don&apos;t have a dentistry problem. They have a
-            business problem.
+            If this sounds familiar, you are not alone.
           </p>
           <p className="max-w-[22ch] text-balance font-display text-[clamp(2.25rem,6.5vw,5.5rem)] font-bold leading-[1.02] tracking-tight text-moss-text">
             Dental Growth Lab helps you change that.
