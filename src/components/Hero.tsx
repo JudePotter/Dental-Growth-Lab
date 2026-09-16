@@ -49,7 +49,7 @@ export default function Hero() {
           transition={{ duration: 0.7, ease, delay: 0.55 }}
           className="mt-8 font-display text-xl font-medium text-moss-text sm:text-2xl"
         >
-          More Freedom. More Control. More Profit.
+          More Profit. More Control. More Freedom.
         </motion.p>
 
         <motion.p
@@ -95,8 +95,7 @@ export default function Hero() {
 function ReframeContrast() {
   const reduced = useReducedMotion();
   const wrapRef = useRef<HTMLDivElement>(null);
-  const lineOneRef = useRef<HTMLSpanElement>(null);
-  const strikeRef = useRef<HTMLSpanElement>(null);
+  const lineOneRef = useRef<HTMLParagraphElement>(null);
   const lineTwoRef = useRef<HTMLParagraphElement>(null);
   const underlineRef = useRef<HTMLSpanElement>(null);
 
@@ -104,8 +103,7 @@ function ReframeContrast() {
     if (reduced) return;
     const ctx = gsap.context(() => {
       gsap.set(lineOneRef.current, { autoAlpha: 0, y: 16 });
-      gsap.set(strikeRef.current, { scaleX: 0 });
-      gsap.set(lineTwoRef.current, { autoAlpha: 0, y: 26 });
+      gsap.set(lineTwoRef.current, { autoAlpha: 0, y: 16 });
       gsap.set(underlineRef.current, { scaleX: 0 });
 
       const tl = gsap.timeline({
@@ -118,10 +116,9 @@ function ReframeContrast() {
       });
 
       tl.to(lineOneRef.current, { autoAlpha: 1, y: 0, duration: 1 }, 0)
-        .to(strikeRef.current, { scaleX: 1, duration: 1, ease: "power2.inOut" }, 1.7)
-        .to(lineOneRef.current, { autoAlpha: 0.35, duration: 0.6 }, 2.6)
-        .to(lineTwoRef.current, { autoAlpha: 1, y: 0, duration: 1.4, ease: "power2.out" }, 2.8)
-        .to(underlineRef.current, { scaleX: 1, duration: 0.8, ease: "power2.inOut" }, 3.9);
+        .to(lineOneRef.current, { autoAlpha: 0.4, duration: 0.6 }, 1.9)
+        .to(lineTwoRef.current, { autoAlpha: 1, y: 0, duration: 1.2, ease: "power2.out" }, 2.1)
+        .to(underlineRef.current, { scaleX: 1, duration: 0.8, ease: "power2.inOut" }, 3.1);
     }, wrapRef);
 
     return () => ctx.revert();
@@ -133,24 +130,18 @@ function ReframeContrast() {
       className="relative border-t border-paper-line bg-paper-dim py-24 sm:py-32"
     >
       <div className="structural-grid" />
-      <div className="relative mx-auto max-w-[900px] px-6 text-center sm:px-10">
-        <span
+      <div className="relative mx-auto max-w-[720px] px-6 text-center sm:px-10">
+        <p
           ref={lineOneRef}
-          className="relative inline-block font-display text-2xl tracking-tight text-mist-dim sm:text-3xl"
+          className="text-balance font-display text-[clamp(1.75rem,4.5vw,3rem)] font-medium leading-[1.2] tracking-tight text-mist-dim"
           style={reduced ? { opacity: 0.5 } : undefined}
         >
           A practice going from £1.2m to £1.4m is good.
-          <span
-            ref={strikeRef}
-            aria-hidden="true"
-            className="absolute left-0 top-1/2 h-[2px] w-full origin-left bg-mist-dim/70"
-            style={reduced ? { transform: "scaleX(1)" } : undefined}
-          />
-        </span>
+        </p>
 
         <p
           ref={lineTwoRef}
-          className="mx-auto mt-6 max-w-[26ch] text-balance font-display text-3xl font-medium leading-[1.15] tracking-tight text-ink sm:text-4xl md:text-5xl"
+          className="mx-auto mt-6 max-w-[30ch] text-balance font-display text-[clamp(1.75rem,4.5vw,3rem)] font-medium leading-[1.2] tracking-tight text-ink"
           style={reduced ? { opacity: 1, transform: "none" } : undefined}
         >
           While the owner goes from five clinical days to three, and stops
