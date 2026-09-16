@@ -1,6 +1,15 @@
 @import "tailwindcss";
 
-:root {
+/*
+  Three full-site colourways, driven entirely by tokens. Default (no
+  data-theme attribute, or data-theme="periwinkle") is Scheme A. Setting
+  data-theme="calendly" or data-theme="teal" on any ancestor (the html
+  element for a site-wide switch, or a single wrapper for a side-by-side
+  preview) swaps every accent colour beneath it. See lib/themes.ts and
+  layout.tsx for the ?theme= URL switch.
+*/
+:root,
+[data-theme="periwinkle"] {
   --color-paper: #ffffff;
   --color-paper-dim: #f4f5f7;
   --color-paper-line: #e3e5e9;
@@ -18,6 +27,52 @@
   --color-moss-soft: #eae8ff;
   --color-moss-text: #4b40d6;
 
+  --gradient-feature: linear-gradient(135deg, #6c63ff 0%, #857dff 100%);
+}
+
+[data-theme="calendly"] {
+  --color-paper: #ffffff;
+  --color-paper-dim: #f4f5f7;
+  --color-paper-line: #e3e5e9;
+
+  --color-ink: #0c0f0e;
+  --color-ink-soft: #171a19;
+  --color-ink-line: rgba(12, 15, 14, 0.1);
+
+  --color-mist: #8e9196;
+  --color-mist-dim: #5c5f65;
+  --color-mist-line: #dcdee2;
+
+  --color-moss: #3e6bc0;
+  --color-moss-bright: #6f9ade;
+  --color-moss-soft: #cee1f9;
+  --color-moss-text: #2c4f8f;
+
+  --gradient-feature: linear-gradient(135deg, #6f9ade 0%, #92ddd7 100%);
+}
+
+[data-theme="teal"] {
+  --color-paper: #ffffff;
+  --color-paper-dim: #f4f5f7;
+  --color-paper-line: #e3e5e9;
+
+  --color-ink: #0c0f0e;
+  --color-ink-soft: #171a19;
+  --color-ink-line: rgba(12, 15, 14, 0.1);
+
+  --color-mist: #8e9196;
+  --color-mist-dim: #5c5f65;
+  --color-mist-line: #dcdee2;
+
+  --color-moss: #0f6f5c;
+  --color-moss-bright: #159179;
+  --color-moss-soft: #e1f3ee;
+  --color-moss-text: #0b5245;
+
+  --gradient-feature: linear-gradient(135deg, #0f6f5c 0%, #159179 100%);
+}
+
+:root {
   --font-display: var(--font-bricolage);
   --font-body: var(--font-manrope);
 }
@@ -118,6 +173,21 @@ button {
   text-wrap: balance;
 }
 
+/* The "big moment" gradient for each colourway: hero accents, the turnover
+   finale and key section highlights. Solid colour fallback keeps text
+   readable in browsers without background-clip: text support. */
+.text-feature-gradient {
+  color: var(--color-moss-text);
+  background-image: var(--gradient-feature);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.bg-feature-gradient {
+  background-image: var(--gradient-feature);
+}
+
 /* Tiled plus-mark field that fades out toward the bottom, echoing the
    reference site's header texture. */
 .plus-field {
@@ -143,3 +213,5 @@ button {
     scroll-behavior: auto !important;
   }
 }
+
+
