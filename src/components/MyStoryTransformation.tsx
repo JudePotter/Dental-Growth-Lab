@@ -22,6 +22,7 @@ const JOURNEY_LEAD_IN =
   "These are real numbers from a practice I bought in February 2018 and sold in December 2023, ending fully associate-led after I stopped clinical dentistry.";
 
 const INTRO_LINES = [
+  "I know what this feels like. I've lived it.",
   "My name is Pujan Soni.",
   "I've bought four dental practices and sold three.",
   "Everything you've experienced, I've been through.",
@@ -56,9 +57,8 @@ function IntroBlockStatic() {
     <div className="relative overflow-hidden border-b border-paper/10 py-24 sm:py-32">
       <div className="structural-grid structural-grid--dark" />
       <div className="relative mx-auto max-w-[1400px] px-6 sm:px-10">
-        <p className="text-sm font-medium tracking-wide text-paper/50">My Story</p>
-        <h2 className="mt-6 max-w-[24ch] text-balance font-display text-[clamp(4rem,16vw,14rem)] font-bold leading-[0.92] tracking-tight text-paper">
-          I know what this feels like. I&apos;ve lived it.
+        <h2 className="max-w-[16ch] text-balance font-display text-[clamp(4rem,16vw,14rem)] font-bold leading-[0.92] tracking-tight text-paper">
+          My Story
         </h2>
         <div className="mt-10 flex flex-col gap-2 sm:mt-14">
           {INTRO_LINES.map((line) => (
@@ -80,9 +80,14 @@ function IntroBlockStatic() {
   );
 }
 
+/**
+ * Pinned so each line's arrival is tied to actual scroll distance, giving
+ * a new line every deliberate bit of scroll rather than a quick batch
+ * fade-in. "My Story" is the display heading and stays put throughout.
+ */
 function IntroBlockAnimated() {
-  const wrapRef = useRef<HTMLDivElement>(null);
-  const labelRef = useRef<HTMLParagraphElement>(null);
+  const sectionRef = useRef<HTMLDivElement>(null);
+  const stageRef = useRef<HTMLDivElement>(null);
   const headingRef = useRef<HTMLHeadingElement>(null);
   const lineRefs = useRef<(HTMLParagraphElement | null)[]>([]);
   const bodyRef = useRef<HTMLParagraphElement>(null);
@@ -91,87 +96,77 @@ function IntroBlockAnimated() {
     const ctx = gsap.context(() => {
       const lines = lineRefs.current.filter(Boolean) as HTMLParagraphElement[];
 
-      gsap.set(labelRef.current, { autoAlpha: 0, y: 10 });
       gsap.set(headingRef.current, { autoAlpha: 0, y: 24 });
       gsap.set(lines, { autoAlpha: 0, y: 16 });
       gsap.set(bodyRef.current, { autoAlpha: 0, y: 14 });
 
-      // Not pinned: ties each line's arrival to how far the user has
-      // actually scrolled, so a new line lands every little bit of scroll
-      // rather than the whole block fading in as one batch.
       const tl = gsap.timeline({
         scrollTrigger: {
-          trigger: wrapRef.current,
-          start: "top 85%",
-          end: "top -50%",
-          scrub: 0.6,
+          trigger: sectionRef.current,
+          start: "top top",
+          end: "bottom bottom",
+          scrub: 0.8,
+          pin: stageRef.current,
         },
+        defaults: { ease: "power2.out" },
       });
 
-      tl.to(labelRef.current, { autoAlpha: 1, y: 0, duration: 0.5 }, 0).to(
-        headingRef.current,
-        { autoAlpha: 1, y: 0, duration: 1 },
-        0.3
-      );
+      tl.to(headingRef.current, { autoAlpha: 1, y: 0, duration: 0.6 }, 0.1);
 
       lines.forEach((line, i) => {
-        tl.to(line, { autoAlpha: 1, y: 0, duration: 0.55 }, 1.6 + i * 0.6);
+        tl.to(line, { autoAlpha: 1, y: 0, duration: 0.5 }, 0.9 + i * 0.5);
       });
 
       tl.to(
         bodyRef.current,
-        { autoAlpha: 1, y: 0, duration: 0.6 },
-        1.6 + lines.length * 0.6 + 0.3
+        { autoAlpha: 1, y: 0, duration: 0.55 },
+        0.9 + lines.length * 0.5 + 0.3
       );
-    }, wrapRef);
+    }, sectionRef);
 
     return () => ctx.revert();
   }, []);
 
   return (
-    <div
-      ref={wrapRef}
-      className="relative overflow-hidden border-b border-paper/10 py-24 sm:py-32"
-    >
-      <div className="structural-grid structural-grid--dark" />
-      <div className="relative mx-auto max-w-[1400px] px-6 sm:px-10">
-        <p
-          ref={labelRef}
-          className="text-sm font-medium tracking-wide text-paper/50"
-        >
-          My Story
-        </p>
-        <h2
-          ref={headingRef}
-          className="mt-6 max-w-[24ch] text-balance font-display text-[clamp(4rem,16vw,14rem)] font-bold leading-[0.92] tracking-tight text-paper"
-        >
-          I know what this feels like. I&apos;ve lived it.
-        </h2>
+    <section ref={sectionRef} className="relative h-[280vh] md:h-[340vh]">
+      <div
+        ref={stageRef}
+        className="relative flex h-[100svh] flex-col justify-center overflow-hidden border-b border-paper/10 bg-ink"
+      >
+        <div className="structural-grid structural-grid--dark" />
+        <div className="relative mx-auto max-w-[1400px] px-6 sm:px-10">
+          <h2
+            ref={headingRef}
+            className="max-w-[16ch] text-balance font-display text-[clamp(4rem,16vw,14rem)] font-bold leading-[0.92] tracking-tight text-paper"
+          >
+            My Story
+          </h2>
 
-        <div className="mt-10 flex flex-col gap-2 sm:mt-14">
-          {INTRO_LINES.map((line, i) => (
-            <p
-              key={line}
-              ref={(el) => {
-                lineRefs.current[i] = el;
-              }}
-              className="max-w-[52ch] font-display text-2xl font-medium leading-snug text-paper sm:text-3xl"
-            >
-              {line}
-            </p>
-          ))}
+          <div className="mt-10 flex flex-col gap-2 sm:mt-14">
+            {INTRO_LINES.map((line, i) => (
+              <p
+                key={line}
+                ref={(el) => {
+                  lineRefs.current[i] = el;
+                }}
+                className="max-w-[52ch] font-display text-2xl font-medium leading-snug text-paper sm:text-3xl"
+              >
+                {line}
+              </p>
+            ))}
+          </div>
+
+          <p
+            ref={bodyRef}
+            className="mt-8 max-w-[60ch] text-xl leading-relaxed text-paper/70"
+          >
+            I had exactly the same problems, and felt the practice
+            wasn&apos;t progressing and was going nowhere. I stopped being a
+            dentist who owned a business, and became a business owner.
+          </p>
         </div>
-
-        <p
-          ref={bodyRef}
-          className="mt-8 max-w-[60ch] text-xl leading-relaxed text-paper/70"
-        >
-          I had exactly the same problems, and felt the practice wasn&apos;t
-          progressing and was going nowhere. I stopped being a dentist who
-          owned a business, and became a business owner.
-        </p>
       </div>
-    </div>
+    </section>
   );
 }
 
@@ -336,58 +331,82 @@ function StatSpine() {
   return reduced ? <StatSpineStatic /> : <StatSpineAnimated />;
 }
 
+/*
+ * One shared grid holds the header and every row, so the "auto" spine
+ * column is sized once across all labels and stays a true straight line,
+ * rather than each row computing its own independent (and misaligned)
+ * column widths. Bought/Sold cells reserve a fixed min-width so a
+ * digit-count count-up never nudges the columns as it runs. Explicit
+ * sm:col-start placement (not the `order` utility, which reorders the
+ * whole grid rather than just one row) puts Bought/Spine/Sold side by
+ * side on desktop while keeping natural label-then-values DOM order for
+ * the mobile stack.
+ */
+const SPINE_GRID = "grid grid-cols-2 sm:grid-cols-[1fr_auto_1fr] gap-x-6 sm:gap-x-10";
+const SPINE_LABEL_CELL =
+  "col-span-2 pb-2 text-center text-xs font-semibold uppercase tracking-wide text-paper sm:col-span-1 sm:col-start-2 sm:pb-0 sm:text-sm";
+const SPINE_BOUGHT_CELL =
+  "min-w-[2.5ch] py-5 text-right font-display text-4xl font-medium tabular-nums text-paper/60 sm:col-start-1 sm:py-7 sm:text-5xl";
+const SPINE_SOLD_WRAP = "py-5 text-left sm:col-start-3 sm:py-7";
+// The min-width lives here, not on the wrapper: ch resolves against this
+// element's own (huge) font-size, so it actually reserves enough room for
+// the widest value ("200+") and the count-up never nudges the column.
+const SPINE_SOLD_VALUE =
+  "block min-w-[5.5ch] font-display text-[clamp(2.75rem,6.5vw,5.5rem)] font-bold tabular-nums text-moss-bright";
+const SPINE_DIVIDER = "col-span-2 h-[2px] bg-paper/25 sm:col-span-3";
+
+function SpineHeaderRow() {
+  return (
+    <>
+      <div className="col-span-2 flex items-baseline justify-between pb-4 sm:hidden">
+        <span className="font-display text-lg font-medium text-paper/60">Bought</span>
+        <span className="font-display text-lg font-medium text-moss-bright">Sold</span>
+      </div>
+      <span className="hidden pb-6 text-right font-display text-xl font-medium text-paper/60 sm:col-start-1 sm:block">
+        Bought
+      </span>
+      <span className="hidden pb-6 text-left font-display text-xl font-medium text-moss-bright sm:col-start-3 sm:block">
+        Sold
+      </span>
+      {/* Claims the header row's middle cell so the first data row can't
+          auto-place its label back into row 1 alongside the headers. */}
+      <span aria-hidden="true" className="hidden sm:col-start-2 sm:block" />
+    </>
+  );
+}
+
 function StatSpineStatic() {
   return (
     <div className="mx-auto mt-16 max-w-[1400px] px-6 sm:mt-24 sm:px-10">
-      <div className="mx-auto max-w-[900px]">
-        <SpineHeader />
-        <div className="mt-4 divide-y divide-paper/10">
-          {statRows.map((row) => (
-            <div
-              key={row.id}
-              className="grid grid-cols-2 items-center gap-y-1 py-5 sm:grid-cols-[1fr_auto_1fr] sm:gap-x-8"
-            >
-              <span className="order-first col-span-2 text-center text-xs font-semibold uppercase tracking-wide text-paper/50 sm:order-none sm:col-span-1 sm:text-sm">
-                {row.label}
-              </span>
-              <span className="text-right font-display text-3xl font-medium tabular-nums text-paper/60 sm:text-4xl">
-                {row.boughtDisplay ?? row.format(row.bought)}
-              </span>
-              <span className="text-left font-display text-[clamp(2.25rem,5.5vw,4.25rem)] font-bold tabular-nums text-moss-bright">
-                {row.format(row.sold)}
-                {row.soldCaption && (
-                  <span className="mt-1 block text-sm font-medium tracking-tight text-paper/60">
-                    {row.soldCaption}
-                  </span>
-                )}
-              </span>
-            </div>
-          ))}
-        </div>
+      <div className={`mx-auto max-w-[900px] items-center ${SPINE_GRID}`}>
+        <SpineHeaderRow />
+        {statRows.map((row, i) => (
+          <div key={row.id} className="contents">
+            <span className={SPINE_LABEL_CELL}>{row.label}</span>
+            <span className={SPINE_BOUGHT_CELL}>
+              {row.boughtDisplay ?? row.format(row.bought)}
+            </span>
+            <span className={SPINE_SOLD_WRAP}>
+              <span className={SPINE_SOLD_VALUE}>{row.format(row.sold)}</span>
+              {row.soldCaption && (
+                <span className="mt-1 block text-sm font-medium tracking-tight text-paper/60">
+                  {row.soldCaption}
+                </span>
+              )}
+            </span>
+            {i < statRows.length - 1 && <div className={SPINE_DIVIDER} />}
+          </div>
+        ))}
       </div>
 
       <div className="mx-auto mt-20 max-w-[700px] text-center">
-        <p className="text-sm font-semibold uppercase tracking-[0.2em] text-paper">
+        <p className="text-lg font-semibold uppercase tracking-[0.15em] text-paper sm:text-2xl">
           Revenue
         </p>
         <span className="mt-4 block font-display text-[clamp(3.5rem,12vw,9rem)] font-bold tabular-nums text-feature-gradient">
           {turnoverStat.format(turnoverStat.sold)}
         </span>
       </div>
-    </div>
-  );
-}
-
-function SpineHeader() {
-  return (
-    <div className="grid grid-cols-2 gap-x-8 sm:grid-cols-[1fr_auto_1fr]">
-      <span className="text-right font-display text-lg font-medium text-paper/60 sm:text-xl">
-        Bought
-      </span>
-      <span className="hidden sm:block" aria-hidden="true" />
-      <span className="text-left font-display text-lg font-medium text-moss-bright sm:text-xl">
-        Sold
-      </span>
     </div>
   );
 }
@@ -540,51 +559,50 @@ function StatSpineAnimated() {
           }}
         />
 
-        <div ref={gridRef} className="relative mx-auto w-full max-w-[900px] px-6 sm:px-10">
-          <SpineHeader />
-          <div className="mt-4 divide-y divide-paper/10">
-            {statRows.map((row, i) => (
-              <div
-                key={row.id}
-                className="grid grid-cols-2 items-center gap-y-1 py-4 sm:grid-cols-[1fr_auto_1fr] sm:gap-x-8 sm:py-5"
+        <div
+          ref={gridRef}
+          className={`relative mx-auto w-full max-w-[900px] items-center px-6 sm:px-10 ${SPINE_GRID}`}
+        >
+          <SpineHeaderRow />
+          {statRows.map((row, i) => (
+            <div key={row.id} className="contents">
+              <span
+                ref={(el) => {
+                  labelRefs.current[i] = el;
+                }}
+                className={SPINE_LABEL_CELL}
               >
+                {row.label}
+              </span>
+              <span
+                ref={(el) => {
+                  boughtRefs.current[i] = el;
+                }}
+                className={SPINE_BOUGHT_CELL}
+              >
+                {row.boughtDisplay ?? ""}
+              </span>
+              <span className={SPINE_SOLD_WRAP}>
                 <span
                   ref={(el) => {
-                    labelRefs.current[i] = el;
+                    soldRefs.current[i] = el;
                   }}
-                  className="order-first col-span-2 text-center text-xs font-semibold uppercase tracking-wide text-paper sm:order-none sm:col-span-1 sm:text-sm"
-                >
-                  {row.label}
-                </span>
-                <span
-                  ref={(el) => {
-                    boughtRefs.current[i] = el;
-                  }}
-                  className="text-right font-display text-3xl font-medium tabular-nums text-paper/60 sm:text-4xl"
-                >
-                  {row.boughtDisplay ?? ""}
-                </span>
-                <span className="text-left">
+                  className={SPINE_SOLD_VALUE}
+                />
+                {row.soldCaption && (
                   <span
                     ref={(el) => {
-                      soldRefs.current[i] = el;
+                      soldCaptionRefs.current[i] = el;
                     }}
-                    className="block font-display text-[clamp(2.25rem,5.5vw,4.25rem)] font-bold tabular-nums text-moss-bright"
-                  />
-                  {row.soldCaption && (
-                    <span
-                      ref={(el) => {
-                        soldCaptionRefs.current[i] = el;
-                      }}
-                      className="mt-1 block text-sm font-medium tracking-tight text-paper/60"
-                    >
-                      {row.soldCaption}
-                    </span>
-                  )}
-                </span>
-              </div>
-            ))}
-          </div>
+                    className="mt-1 block text-sm font-medium tracking-tight text-paper/60"
+                  >
+                    {row.soldCaption}
+                  </span>
+                )}
+              </span>
+              {i < statRows.length - 1 && <div className={SPINE_DIVIDER} />}
+            </div>
+          ))}
         </div>
 
         <div
@@ -593,7 +611,7 @@ function StatSpineAnimated() {
         >
           <p
             ref={finaleLabelRef}
-            className="text-sm font-semibold uppercase tracking-[0.2em] text-paper opacity-0"
+            className="text-lg font-semibold uppercase tracking-[0.15em] text-paper opacity-0 sm:text-2xl"
           >
             Revenue
           </p>
