@@ -352,26 +352,28 @@ const SPINE_GRID =
 const SPINE_LABEL_CELL =
   "col-span-2 pb-2 text-center text-xs font-semibold uppercase tracking-wide text-paper sm:col-span-1 sm:col-start-2 sm:pb-0 sm:text-sm";
 const SPINE_BOUGHT_CELL =
-  "min-w-[2.5ch] py-5 text-left font-display text-4xl font-medium tabular-nums text-paper/60 sm:col-start-1 sm:py-7 sm:text-5xl";
-const SPINE_SOLD_WRAP = "py-5 text-right sm:col-start-3 sm:py-7";
+  "min-w-[2.5ch] py-1.5 text-left font-display text-4xl font-medium leading-none tabular-nums text-paper/60 sm:col-start-1 sm:py-2 sm:text-5xl";
+const SPINE_SOLD_WRAP = "py-1.5 text-right sm:col-start-3 sm:py-2";
 // The min-width lives here, not on the wrapper: ch resolves against this
 // element's own (huge) font-size, so it actually reserves enough room for
 // the widest value ("200+") and the count-up never nudges the column.
+// leading-none keeps the row height tied to the digits themselves, not
+// the font's normal line box, without touching the font-size.
 const SPINE_SOLD_VALUE =
-  "block min-w-[5.5ch] font-display text-[clamp(2.75rem,6.5vw,5.5rem)] font-bold tabular-nums text-moss-bright";
+  "block min-w-[5.5ch] font-display text-[clamp(2.75rem,6.5vw,5.5rem)] font-bold leading-none tabular-nums text-moss-bright";
 const SPINE_DIVIDER = "col-span-2 h-[2px] bg-paper/25 sm:col-span-3";
 
 function SpineHeaderRow() {
   return (
     <>
-      <div className="col-span-2 flex items-baseline justify-between pb-4 sm:hidden">
+      <div className="col-span-2 flex items-baseline justify-between pb-3 sm:hidden">
         <span className="font-display text-lg font-medium text-paper/60">Bought</span>
         <span className="font-display text-lg font-medium text-moss-bright">Sold</span>
       </div>
-      <span className="hidden pb-6 text-left font-display text-xl font-medium text-paper/60 sm:col-start-1 sm:block">
+      <span className="hidden pb-3 text-left font-display text-xl font-medium text-paper/60 sm:col-start-1 sm:block">
         Bought
       </span>
-      <span className="hidden pb-6 text-right font-display text-xl font-medium text-moss-bright sm:col-start-3 sm:block">
+      <span className="hidden pb-3 text-right font-display text-xl font-medium text-moss-bright sm:col-start-3 sm:block">
         Sold
       </span>
       {/* Claims the header row's middle cell so the first data row can't
@@ -439,13 +441,13 @@ function StatSpineAnimated() {
       const labels = labelRefs.current.filter(Boolean) as HTMLSpanElement[];
       const dividers = dividerRefs.current.filter(Boolean) as HTMLDivElement[];
 
-      gsap.set(labels, { autoAlpha: 0, y: 8 });
+      // Every element already sits at its final resting spot in the DOM;
+      // only opacity (and, for Sold, a small in-place scale pop) animates,
+      // so nothing drifts across the section as it reveals.
+      gsap.set(labels, { autoAlpha: 0 });
       gsap.set(dividers, { autoAlpha: 0 });
-      // Bought and Sold now fill outward to the far left and far right of
-      // the section, so they fly in from further out still, converging
-      // into their resting spot rather than drifting sideways across it.
-      gsap.set(boughtEls, { autoAlpha: 0, x: -36 });
-      gsap.set(soldEls, { autoAlpha: 0, x: 44, scale: 0.6 });
+      gsap.set(boughtEls, { autoAlpha: 0 });
+      gsap.set(soldEls, { autoAlpha: 0, scale: 0.82 });
       gsap.set(captionEls.filter(Boolean), { autoAlpha: 0 });
       gsap.set(glowRef.current, { opacity: 0 });
       gsap.set(finaleRef.current, { autoAlpha: 0, y: 24 });
@@ -464,12 +466,12 @@ function StatSpineAnimated() {
         defaults: { ease: "power2.out" },
       });
 
-      tl.to(labels, { autoAlpha: 1, y: 0, duration: 0.4, stagger: 0.06 }, 0.15);
+      tl.to(labels, { autoAlpha: 1, duration: 0.4, stagger: 0.06 }, 0.15);
 
       // Bought fills top to bottom, left side. Modest: this is the before.
       statRows.forEach((row: StatRow, i: number) => {
         const at = 0.55 + i * rowStep;
-        tl.to(boughtEls[i], { autoAlpha: 1, x: 0, duration: 0.3 }, at);
+        tl.to(boughtEls[i], { autoAlpha: 1, duration: 0.3 }, at);
         // Opacity only, never width or position, so the divider is exactly
         // where it started once it is visible.
         if (dividers[i]) tl.to(dividers[i], { autoAlpha: 1, duration: 0.4 }, at);
@@ -497,7 +499,7 @@ function StatSpineAnimated() {
         const at = boughtEnd + i * rowStep;
         tl.to(
           soldEls[i],
-          { autoAlpha: 1, x: 0, scale: 1, duration: 0.45, ease: "back.out(1.8)" },
+          { autoAlpha: 1, scale: 1, duration: 0.45, ease: "back.out(1.8)" },
           at
         );
         if (captionEls[i]) {
@@ -563,7 +565,10 @@ function StatSpineAnimated() {
 
   return (
     <section ref={sectionRef} className="relative h-[540vh] md:h-[680vh]">
-      <div ref={stageRef} className="relative flex h-[100svh] items-center overflow-hidden bg-ink">
+      <div
+        ref={stageRef}
+        className="relative flex h-[100svh] items-start overflow-hidden bg-ink pt-28 pb-8 sm:pt-32"
+      >
         <div className="structural-grid structural-grid--dark" />
         <div
           ref={glowRef}
