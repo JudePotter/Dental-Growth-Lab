@@ -332,22 +332,28 @@ function StatSpine() {
 }
 
 /*
- * One shared grid holds the header and every row, so the "auto" spine
- * column is sized once across all labels and stays a true straight line,
- * rather than each row computing its own independent (and misaligned)
- * column widths. Bought/Sold cells reserve a fixed min-width so a
- * digit-count count-up never nudges the columns as it runs. Explicit
- * sm:col-start placement (not the `order` utility, which reorders the
- * whole grid rather than just one row) puts Bought/Spine/Sold side by
- * side on desktop while keeping natural label-then-values DOM order for
- * the mobile stack.
+ * One shared grid holds the header and every row. The spine (label)
+ * column is a fixed pixel width, not `auto`, so it can never be nudged
+ * by content elsewhere. The Bought and Sold columns use `minmax(0,1fr)`
+ * rather than a bare `1fr`: a bare fr track still grows past its fair
+ * share to fit a wide count-up digit, which shifts every column beside
+ * it, while `minmax(0, ...)` caps its minimum at zero and lets it hold
+ * the track size no matter what the count-up renders. Bought is
+ * left-aligned and Sold is right-aligned, so each column fills outward
+ * toward its own edge of the section instead of huddling against the
+ * centre spine, and the divider lines spanning the whole grid stay put
+ * throughout the reveal. Explicit sm:col-start placement (not the
+ * `order` utility, which reorders the whole grid rather than just one
+ * row) puts Bought/Spine/Sold side by side on desktop while keeping
+ * natural label-then-values DOM order for the mobile stack.
  */
-const SPINE_GRID = "grid grid-cols-2 sm:grid-cols-[1fr_auto_1fr] gap-x-6 sm:gap-x-10";
+const SPINE_GRID =
+  "grid grid-cols-2 sm:grid-cols-[minmax(0,1fr)_200px_minmax(0,1fr)] gap-x-6 sm:gap-x-12 lg:gap-x-20";
 const SPINE_LABEL_CELL =
   "col-span-2 pb-2 text-center text-xs font-semibold uppercase tracking-wide text-paper sm:col-span-1 sm:col-start-2 sm:pb-0 sm:text-sm";
 const SPINE_BOUGHT_CELL =
-  "min-w-[2.5ch] py-5 text-right font-display text-4xl font-medium tabular-nums text-paper/60 sm:col-start-1 sm:py-7 sm:text-5xl";
-const SPINE_SOLD_WRAP = "py-5 text-left sm:col-start-3 sm:py-7";
+  "min-w-[2.5ch] py-5 text-left font-display text-4xl font-medium tabular-nums text-paper/60 sm:col-start-1 sm:py-7 sm:text-5xl";
+const SPINE_SOLD_WRAP = "py-5 text-right sm:col-start-3 sm:py-7";
 // The min-width lives here, not on the wrapper: ch resolves against this
 // element's own (huge) font-size, so it actually reserves enough room for
 // the widest value ("200+") and the count-up never nudges the column.
@@ -362,10 +368,10 @@ function SpineHeaderRow() {
         <span className="font-display text-lg font-medium text-paper/60">Bought</span>
         <span className="font-display text-lg font-medium text-moss-bright">Sold</span>
       </div>
-      <span className="hidden pb-6 text-right font-display text-xl font-medium text-paper/60 sm:col-start-1 sm:block">
+      <span className="hidden pb-6 text-left font-display text-xl font-medium text-paper/60 sm:col-start-1 sm:block">
         Bought
       </span>
-      <span className="hidden pb-6 text-left font-display text-xl font-medium text-moss-bright sm:col-start-3 sm:block">
+      <span className="hidden pb-6 text-right font-display text-xl font-medium text-moss-bright sm:col-start-3 sm:block">
         Sold
       </span>
       {/* Claims the header row's middle cell so the first data row can't
@@ -378,7 +384,7 @@ function SpineHeaderRow() {
 function StatSpineStatic() {
   return (
     <div className="mx-auto mt-16 max-w-[1400px] px-6 sm:mt-24 sm:px-10">
-      <div className={`mx-auto max-w-[900px] items-center ${SPINE_GRID}`}>
+      <div className={`mx-auto w-full items-center ${SPINE_GRID}`}>
         <SpineHeaderRow />
         {statRows.map((row, i) => (
           <div key={row.id} className="contents">
@@ -420,6 +426,7 @@ function StatSpineAnimated() {
   const soldRefs = useRef<(HTMLSpanElement | null)[]>([]);
   const soldCaptionRefs = useRef<(HTMLSpanElement | null)[]>([]);
   const labelRefs = useRef<(HTMLSpanElement | null)[]>([]);
+  const dividerRefs = useRef<(HTMLDivElement | null)[]>([]);
   const finaleRef = useRef<HTMLDivElement>(null);
   const finaleLabelRef = useRef<HTMLParagraphElement>(null);
   const finaleValueRef = useRef<HTMLSpanElement>(null);
@@ -430,10 +437,15 @@ function StatSpineAnimated() {
       const soldEls = soldRefs.current.filter(Boolean) as HTMLSpanElement[];
       const captionEls = soldCaptionRefs.current;
       const labels = labelRefs.current.filter(Boolean) as HTMLSpanElement[];
+      const dividers = dividerRefs.current.filter(Boolean) as HTMLDivElement[];
 
       gsap.set(labels, { autoAlpha: 0, y: 8 });
-      gsap.set(boughtEls, { autoAlpha: 0, x: -16 });
-      gsap.set(soldEls, { autoAlpha: 0, x: 24, scale: 0.6 });
+      gsap.set(dividers, { autoAlpha: 0 });
+      // Bought and Sold now fill outward to the far left and far right of
+      // the section, so they fly in from further out still, converging
+      // into their resting spot rather than drifting sideways across it.
+      gsap.set(boughtEls, { autoAlpha: 0, x: -36 });
+      gsap.set(soldEls, { autoAlpha: 0, x: 44, scale: 0.6 });
       gsap.set(captionEls.filter(Boolean), { autoAlpha: 0 });
       gsap.set(glowRef.current, { opacity: 0 });
       gsap.set(finaleRef.current, { autoAlpha: 0, y: 24 });
@@ -458,6 +470,9 @@ function StatSpineAnimated() {
       statRows.forEach((row: StatRow, i: number) => {
         const at = 0.55 + i * rowStep;
         tl.to(boughtEls[i], { autoAlpha: 1, x: 0, duration: 0.3 }, at);
+        // Opacity only, never width or position, so the divider is exactly
+        // where it started once it is visible.
+        if (dividers[i]) tl.to(dividers[i], { autoAlpha: 1, duration: 0.4 }, at);
         if (row.boughtDisplay === undefined) {
           const counter = { v: 0 };
           tl.to(
@@ -561,7 +576,7 @@ function StatSpineAnimated() {
 
         <div
           ref={gridRef}
-          className={`relative mx-auto w-full max-w-[900px] items-center px-6 sm:px-10 ${SPINE_GRID}`}
+          className={`relative mx-auto w-full max-w-[1400px] items-center px-6 sm:px-10 ${SPINE_GRID}`}
         >
           <SpineHeaderRow />
           {statRows.map((row, i) => (
@@ -600,7 +615,14 @@ function StatSpineAnimated() {
                   </span>
                 )}
               </span>
-              {i < statRows.length - 1 && <div className={SPINE_DIVIDER} />}
+              {i < statRows.length - 1 && (
+                <div
+                  ref={(el) => {
+                    dividerRefs.current[i] = el;
+                  }}
+                  className={SPINE_DIVIDER}
+                />
+              )}
             </div>
           ))}
         </div>
