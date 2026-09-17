@@ -219,7 +219,8 @@ function AnimatedPractice() {
             }}
             className="max-w-[22ch] text-balance font-display text-[clamp(2rem,5.5vw,4rem)] font-bold leading-[1.05] tracking-tight text-ink"
           >
-            Most practice owners don&apos;t have a dentistry problem.
+            Most practice owners don&apos;t have a{" "}
+            <span className="text-moss-text/70">dentistry problem</span>.
           </p>
           <p
             ref={(el) => {
@@ -227,13 +228,13 @@ function AnimatedPractice() {
             }}
             className="max-w-[22ch] text-balance font-display text-[clamp(2rem,5.5vw,4rem)] font-bold leading-[1.05] tracking-tight text-ink"
           >
-            They have a business problem.
+            They have a <span className="text-moss-text">business problem</span>.
           </p>
           <p
             ref={(el) => {
               lineRefs.current[2] = el;
             }}
-            className="max-w-[34ch] text-balance text-xl font-medium leading-[1.35] text-ink/70 sm:text-3xl"
+            className="max-w-[34ch] text-balance text-xl font-medium leading-[1.35] text-moss-text/60 sm:text-3xl"
           >
             If this sounds familiar, you are not alone.
           </p>
@@ -281,12 +282,13 @@ function StaticPractice() {
 
         <div className="mt-20 flex flex-col items-center gap-5 text-center sm:gap-7">
           <p className="max-w-[22ch] text-balance font-display text-[clamp(2rem,5.5vw,4rem)] font-bold leading-[1.05] tracking-tight text-ink">
-            Most practice owners don&apos;t have a dentistry problem.
+            Most practice owners don&apos;t have a{" "}
+            <span className="text-moss-text/70">dentistry problem</span>.
           </p>
           <p className="max-w-[22ch] text-balance font-display text-[clamp(2rem,5.5vw,4rem)] font-bold leading-[1.05] tracking-tight text-ink">
-            They have a business problem.
+            They have a <span className="text-moss-text">business problem</span>.
           </p>
-          <p className="max-w-[34ch] text-balance text-xl font-medium leading-[1.35] text-ink/70 sm:text-3xl">
+          <p className="max-w-[34ch] text-balance text-xl font-medium leading-[1.35] text-moss-text/60 sm:text-3xl">
             If this sounds familiar, you are not alone.
           </p>
           <p className="max-w-[22ch] text-balance font-display text-[clamp(2.25rem,6.5vw,5.5rem)] font-bold leading-[1.02] tracking-tight text-moss-text">

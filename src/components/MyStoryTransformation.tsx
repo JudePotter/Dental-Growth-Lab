@@ -47,55 +47,129 @@ export default function MyStoryTransformation() {
 }
 
 function IntroBlock() {
+  const reduced = useReducedMotion();
+  return reduced ? <IntroBlockStatic /> : <IntroBlockAnimated />;
+}
+
+function IntroBlockStatic() {
   return (
     <div className="relative overflow-hidden border-b border-paper/10 py-24 sm:py-32">
       <div className="structural-grid structural-grid--dark" />
       <div className="relative mx-auto max-w-[1400px] px-6 sm:px-10">
-        <motion.p
-          initial={{ opacity: 0, y: 10 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-80px" }}
-          transition={{ duration: 0.6, ease }}
-          className="text-sm font-medium tracking-wide text-paper/50"
-        >
-          My Story
-        </motion.p>
-        <motion.h2
-          initial={{ opacity: 0, y: 14 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-80px" }}
-          transition={{ duration: 0.7, ease, delay: 0.05 }}
-          className="mt-6 max-w-[22ch] text-balance font-display text-[clamp(3.5rem,13vw,10.5rem)] font-bold leading-[0.94] tracking-tight text-paper"
-        >
+        <p className="text-sm font-medium tracking-wide text-paper/50">My Story</p>
+        <h2 className="mt-6 max-w-[24ch] text-balance font-display text-[clamp(4rem,16vw,14rem)] font-bold leading-[0.92] tracking-tight text-paper">
           I know what this feels like. I&apos;ve lived it.
-        </motion.h2>
-
+        </h2>
         <div className="mt-10 flex flex-col gap-2 sm:mt-14">
-          {INTRO_LINES.map((line, i) => (
-            <motion.p
+          {INTRO_LINES.map((line) => (
+            <p
               key={line}
-              initial={{ opacity: 0, y: 14 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-80px" }}
-              transition={{ duration: 0.6, ease, delay: 0.1 * i }}
               className="max-w-[52ch] font-display text-2xl font-medium leading-snug text-paper sm:text-3xl"
             >
               {line}
-            </motion.p>
+            </p>
+          ))}
+        </div>
+        <p className="mt-8 max-w-[60ch] text-xl leading-relaxed text-paper/70">
+          I had exactly the same problems, and felt the practice wasn&apos;t
+          progressing and was going nowhere. I stopped being a dentist who
+          owned a business, and became a business owner.
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function IntroBlockAnimated() {
+  const wrapRef = useRef<HTMLDivElement>(null);
+  const labelRef = useRef<HTMLParagraphElement>(null);
+  const headingRef = useRef<HTMLHeadingElement>(null);
+  const lineRefs = useRef<(HTMLParagraphElement | null)[]>([]);
+  const bodyRef = useRef<HTMLParagraphElement>(null);
+
+  useLayoutEffect(() => {
+    const ctx = gsap.context(() => {
+      const lines = lineRefs.current.filter(Boolean) as HTMLParagraphElement[];
+
+      gsap.set(labelRef.current, { autoAlpha: 0, y: 10 });
+      gsap.set(headingRef.current, { autoAlpha: 0, y: 24 });
+      gsap.set(lines, { autoAlpha: 0, y: 16 });
+      gsap.set(bodyRef.current, { autoAlpha: 0, y: 14 });
+
+      // Not pinned: ties each line's arrival to how far the user has
+      // actually scrolled, so a new line lands every little bit of scroll
+      // rather than the whole block fading in as one batch.
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: wrapRef.current,
+          start: "top 85%",
+          end: "top -50%",
+          scrub: 0.6,
+        },
+      });
+
+      tl.to(labelRef.current, { autoAlpha: 1, y: 0, duration: 0.5 }, 0).to(
+        headingRef.current,
+        { autoAlpha: 1, y: 0, duration: 1 },
+        0.3
+      );
+
+      lines.forEach((line, i) => {
+        tl.to(line, { autoAlpha: 1, y: 0, duration: 0.55 }, 1.6 + i * 0.6);
+      });
+
+      tl.to(
+        bodyRef.current,
+        { autoAlpha: 1, y: 0, duration: 0.6 },
+        1.6 + lines.length * 0.6 + 0.3
+      );
+    }, wrapRef);
+
+    return () => ctx.revert();
+  }, []);
+
+  return (
+    <div
+      ref={wrapRef}
+      className="relative overflow-hidden border-b border-paper/10 py-24 sm:py-32"
+    >
+      <div className="structural-grid structural-grid--dark" />
+      <div className="relative mx-auto max-w-[1400px] px-6 sm:px-10">
+        <p
+          ref={labelRef}
+          className="text-sm font-medium tracking-wide text-paper/50"
+        >
+          My Story
+        </p>
+        <h2
+          ref={headingRef}
+          className="mt-6 max-w-[24ch] text-balance font-display text-[clamp(4rem,16vw,14rem)] font-bold leading-[0.92] tracking-tight text-paper"
+        >
+          I know what this feels like. I&apos;ve lived it.
+        </h2>
+
+        <div className="mt-10 flex flex-col gap-2 sm:mt-14">
+          {INTRO_LINES.map((line, i) => (
+            <p
+              key={line}
+              ref={(el) => {
+                lineRefs.current[i] = el;
+              }}
+              className="max-w-[52ch] font-display text-2xl font-medium leading-snug text-paper sm:text-3xl"
+            >
+              {line}
+            </p>
           ))}
         </div>
 
-        <motion.p
-          initial={{ opacity: 0, y: 14 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-80px" }}
-          transition={{ duration: 0.7, ease, delay: 0.15 + INTRO_LINES.length * 0.1 }}
+        <p
+          ref={bodyRef}
           className="mt-8 max-w-[60ch] text-xl leading-relaxed text-paper/70"
         >
           I had exactly the same problems, and felt the practice wasn&apos;t
           progressing and was going nowhere. I stopped being a dentist who
           owned a business, and became a business owner.
-        </motion.p>
+        </p>
       </div>
     </div>
   );
@@ -153,29 +227,56 @@ function ClosingBlock() {
   );
 }
 
+function MinusIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 20 20" fill="none" className={className} aria-hidden="true">
+      <circle cx="10" cy="10" r="9" stroke="currentColor" strokeWidth="1.4" />
+      <path d="M6.5 10h7" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function CheckIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 20 20" fill="none" className={className} aria-hidden="true">
+      <circle cx="10" cy="10" r="9" stroke="currentColor" strokeWidth="1.4" />
+      <path
+        d="M6.5 10.3 8.8 12.6 13.5 7.6"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
 function TransformationJourney() {
   return (
     <div className="relative bg-ink py-24 sm:py-32">
       <div className="structural-grid structural-grid--dark" />
       <div className="relative mx-auto max-w-[1400px] px-6 sm:px-10">
-        <div className="grid gap-10 sm:grid-cols-2 sm:gap-16">
+        <div className="grid gap-6 sm:grid-cols-2 sm:gap-8">
           <motion.div
             initial={{ opacity: 0, y: 14 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-80px" }}
             transition={{ duration: 0.6, ease }}
+            className="rounded-3xl border border-paper/10 bg-paper/[0.03] p-8 sm:p-10"
           >
-            <span className="font-display text-2xl font-medium text-paper sm:text-3xl">
-              Bought
-            </span>
-            <p className="mt-2 text-sm font-medium text-paper/50">
-              4 February 2018
-            </p>
-            <ul className="mt-6 space-y-2 text-[15px] leading-relaxed text-paper/65">
+            <div className="flex items-center justify-between gap-4">
+              <span className="font-display text-2xl font-medium text-paper sm:text-3xl">
+                Bought
+              </span>
+              <span className="rounded-full border border-paper/15 px-3 py-1 text-xs font-medium text-paper/50">
+                4 Feb 2018
+              </span>
+            </div>
+            <ul className="mt-8 space-y-4 text-[15px] leading-relaxed text-paper/65">
               {boughtDetails.map((d) => (
-                <li key={d} className="flex gap-2.5">
-                  <span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-paper/40" />
-                  {d}
+                <li key={d} className="flex gap-3">
+                  <MinusIcon className="mt-0.5 h-5 w-5 shrink-0 text-paper/30" />
+                  <span>{d}</span>
                 </li>
               ))}
             </ul>
@@ -186,18 +287,21 @@ function TransformationJourney() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-80px" }}
             transition={{ duration: 0.6, ease, delay: 0.1 }}
+            className="rounded-3xl border border-moss-bright/25 bg-moss/[0.08] p-8 sm:p-10"
           >
-            <span className="font-display text-2xl font-medium text-moss-bright sm:text-3xl">
-              Sold
-            </span>
-            <p className="mt-2 text-sm font-medium text-paper/50">
-              1 December 2023
-            </p>
-            <ul className="mt-6 space-y-2 text-[15px] leading-relaxed text-paper/80">
+            <div className="flex items-center justify-between gap-4">
+              <span className="font-display text-2xl font-medium text-moss-bright sm:text-3xl">
+                Sold
+              </span>
+              <span className="rounded-full border border-moss-bright/25 bg-moss-bright/10 px-3 py-1 text-xs font-medium text-moss-bright">
+                1 Dec 2023
+              </span>
+            </div>
+            <ul className="mt-8 space-y-4 text-[15px] leading-relaxed text-paper/85">
               {soldDetails.map((d) => (
-                <li key={d} className="flex gap-2.5">
-                  <span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-moss-bright" />
-                  {d}
+                <li key={d} className="flex gap-3">
+                  <CheckIcon className="mt-0.5 h-5 w-5 shrink-0 text-moss-bright" />
+                  <span>{d}</span>
                 </li>
               ))}
             </ul>
@@ -246,13 +350,13 @@ function StatSpineStatic() {
               <span className="order-first col-span-2 text-center text-xs font-semibold uppercase tracking-wide text-paper/50 sm:order-none sm:col-span-1 sm:text-sm">
                 {row.label}
               </span>
-              <span className="text-right font-display text-2xl font-medium tabular-nums text-paper/50 sm:text-3xl">
+              <span className="text-right font-display text-3xl font-medium tabular-nums text-paper/60 sm:text-4xl">
                 {row.boughtDisplay ?? row.format(row.bought)}
               </span>
-              <span className="text-left font-display text-[clamp(1.75rem,4vw,3rem)] font-bold tabular-nums text-moss-bright">
+              <span className="text-left font-display text-[clamp(2.25rem,5.5vw,4.25rem)] font-bold tabular-nums text-moss-bright">
                 {row.format(row.sold)}
                 {row.soldCaption && (
-                  <span className="mt-1 block text-sm font-medium tracking-tight text-paper/50">
+                  <span className="mt-1 block text-sm font-medium tracking-tight text-paper/60">
                     {row.soldCaption}
                   </span>
                 )}
@@ -263,8 +367,10 @@ function StatSpineStatic() {
       </div>
 
       <div className="mx-auto mt-20 max-w-[700px] text-center">
-        <p className="text-lg text-paper/60">The number that mattered most.</p>
-        <span className="mt-4 block font-display text-[clamp(3rem,9vw,6.5rem)] font-bold tabular-nums text-feature-gradient">
+        <p className="text-sm font-semibold uppercase tracking-[0.2em] text-paper">
+          Revenue
+        </p>
+        <span className="mt-4 block font-display text-[clamp(3.5rem,12vw,9rem)] font-bold tabular-nums text-feature-gradient">
           {turnoverStat.format(turnoverStat.sold)}
         </span>
       </div>
@@ -290,11 +396,13 @@ function StatSpineAnimated() {
   const sectionRef = useRef<HTMLDivElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
   const gridRef = useRef<HTMLDivElement>(null);
+  const glowRef = useRef<HTMLDivElement>(null);
   const boughtRefs = useRef<(HTMLSpanElement | null)[]>([]);
   const soldRefs = useRef<(HTMLSpanElement | null)[]>([]);
   const soldCaptionRefs = useRef<(HTMLSpanElement | null)[]>([]);
   const labelRefs = useRef<(HTMLSpanElement | null)[]>([]);
   const finaleRef = useRef<HTMLDivElement>(null);
+  const finaleLabelRef = useRef<HTMLParagraphElement>(null);
   const finaleValueRef = useRef<HTMLSpanElement>(null);
 
   useLayoutEffect(() => {
@@ -306,9 +414,11 @@ function StatSpineAnimated() {
 
       gsap.set(labels, { autoAlpha: 0, y: 8 });
       gsap.set(boughtEls, { autoAlpha: 0, x: -16 });
-      gsap.set(soldEls, { autoAlpha: 0, x: 16 });
+      gsap.set(soldEls, { autoAlpha: 0, x: 24, scale: 0.6 });
       gsap.set(captionEls.filter(Boolean), { autoAlpha: 0 });
+      gsap.set(glowRef.current, { opacity: 0 });
       gsap.set(finaleRef.current, { autoAlpha: 0, y: 24 });
+      gsap.set(finaleValueRef.current, { autoAlpha: 0, scale: 0.85 });
 
       const rowStep = 0.32;
 
@@ -325,7 +435,7 @@ function StatSpineAnimated() {
 
       tl.to(labels, { autoAlpha: 1, y: 0, duration: 0.4, stagger: 0.06 }, 0.15);
 
-      // Bought fills top to bottom, left side.
+      // Bought fills top to bottom, left side. Modest: this is the before.
       statRows.forEach((row: StatRow, i: number) => {
         const at = 0.55 + i * rowStep;
         tl.to(boughtEls[i], { autoAlpha: 1, x: 0, duration: 0.3 }, at);
@@ -347,12 +457,17 @@ function StatSpineAnimated() {
 
       const boughtEnd = 0.55 + statRows.length * rowStep + 0.25;
 
-      // Then Sold fills top to bottom, right side, row for row.
+      // Then Sold fills top to bottom, right side, row for row, with a
+      // punchier landing (a slight overshoot) since this is the payoff.
       statRows.forEach((row: StatRow, i: number) => {
         const at = boughtEnd + i * rowStep;
-        tl.to(soldEls[i], { autoAlpha: 1, x: 0, duration: 0.3 }, at);
+        tl.to(
+          soldEls[i],
+          { autoAlpha: 1, x: 0, scale: 1, duration: 0.45, ease: "back.out(1.8)" },
+          at
+        );
         if (captionEls[i]) {
-          tl.to(captionEls[i], { autoAlpha: 1, duration: 0.3 }, at + 0.08);
+          tl.to(captionEls[i], { autoAlpha: 1, duration: 0.3 }, at + 0.1);
         }
         const counter = { v: row.bought };
         tl.to(
@@ -370,16 +485,30 @@ function StatSpineAnimated() {
 
       const soldEnd = boughtEnd + statRows.length * rowStep + 0.3;
 
-      // Finale: the grid recedes, turnover lands alone, centred.
+      // A soft white glow builds behind the grid as the sold side lands,
+      // the section's own "more to come" feeling before the finale.
+      tl.to(glowRef.current, { opacity: 0.16, duration: 1.2, ease: "power1.out" }, boughtEnd);
+
+      // Finale: the grid recedes, turnover lands alone, centred. The
+      // Revenue label arrives first and stays while the figure counts up.
       tl.to(gridRef.current, { autoAlpha: 0.18, scale: 0.96, duration: 0.5, ease: "power2.inOut" }, soldEnd);
-      tl.to(finaleRef.current, { autoAlpha: 1, y: 0, duration: 0.6 }, soldEnd + 0.25);
+      tl.to(glowRef.current, { opacity: 0.3, duration: 0.6 }, soldEnd);
+      tl.to(finaleRef.current, { autoAlpha: 1, y: 0, duration: 0.5 }, soldEnd + 0.2);
+      tl.to(finaleLabelRef.current, { autoAlpha: 1, duration: 0.3 }, soldEnd + 0.2);
+      tl.to(
+        finaleValueRef.current,
+        { autoAlpha: 1, scale: 1, duration: 0.4, ease: "power2.out" },
+        soldEnd + 0.45
+      );
 
       const turnoverCounter = { v: turnoverStat.bought };
+      const turnoverStart = soldEnd + 0.5;
+      const turnoverDuration = 1.1;
       tl.to(
         turnoverCounter,
         {
           v: turnoverStat.sold,
-          duration: 1.1,
+          duration: turnoverDuration,
           ease: "power2.out",
           onUpdate: () => {
             if (finaleValueRef.current) {
@@ -387,17 +516,29 @@ function StatSpineAnimated() {
             }
           },
         },
-        soldEnd + 0.45
+        turnoverStart
       );
+
+      // Hold the finished figure in place for a few more scrolls before
+      // the section releases, rather than rushing straight into the next.
+      tl.to({}, { duration: 1.3 }, turnoverStart + turnoverDuration);
     }, sectionRef);
 
     return () => ctx.revert();
   }, []);
 
   return (
-    <section ref={sectionRef} className="relative h-[440vh] md:h-[560vh]">
+    <section ref={sectionRef} className="relative h-[540vh] md:h-[680vh]">
       <div ref={stageRef} className="relative flex h-[100svh] items-center overflow-hidden bg-ink">
         <div className="structural-grid structural-grid--dark" />
+        <div
+          ref={glowRef}
+          className="pointer-events-none absolute inset-0 opacity-0"
+          style={{
+            background:
+              "radial-gradient(55% 45% at 50% 50%, rgba(244,244,241,0.5), transparent 70%)",
+          }}
+        />
 
         <div ref={gridRef} className="relative mx-auto w-full max-w-[900px] px-6 sm:px-10">
           <SpineHeader />
@@ -411,7 +552,7 @@ function StatSpineAnimated() {
                   ref={(el) => {
                     labelRefs.current[i] = el;
                   }}
-                  className="order-first col-span-2 text-center text-xs font-semibold uppercase tracking-wide text-paper/50 sm:order-none sm:col-span-1 sm:text-sm"
+                  className="order-first col-span-2 text-center text-xs font-semibold uppercase tracking-wide text-paper sm:order-none sm:col-span-1 sm:text-sm"
                 >
                   {row.label}
                 </span>
@@ -419,7 +560,7 @@ function StatSpineAnimated() {
                   ref={(el) => {
                     boughtRefs.current[i] = el;
                   }}
-                  className="text-right font-display text-2xl font-medium tabular-nums text-paper/50 sm:text-3xl"
+                  className="text-right font-display text-3xl font-medium tabular-nums text-paper/60 sm:text-4xl"
                 >
                   {row.boughtDisplay ?? ""}
                 </span>
@@ -428,14 +569,14 @@ function StatSpineAnimated() {
                     ref={(el) => {
                       soldRefs.current[i] = el;
                     }}
-                    className="block font-display text-[clamp(1.75rem,4vw,3rem)] font-bold tabular-nums text-moss-bright"
+                    className="block font-display text-[clamp(2.25rem,5.5vw,4.25rem)] font-bold tabular-nums text-moss-bright"
                   />
                   {row.soldCaption && (
                     <span
                       ref={(el) => {
                         soldCaptionRefs.current[i] = el;
                       }}
-                      className="mt-1 block text-sm font-medium tracking-tight text-paper/50"
+                      className="mt-1 block text-sm font-medium tracking-tight text-paper/60"
                     >
                       {row.soldCaption}
                     </span>
@@ -450,12 +591,15 @@ function StatSpineAnimated() {
           ref={finaleRef}
           className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center px-6 text-center opacity-0"
         >
-          <p className="text-lg text-paper/60 sm:text-xl">
-            The number that mattered most.
+          <p
+            ref={finaleLabelRef}
+            className="text-sm font-semibold uppercase tracking-[0.2em] text-paper opacity-0"
+          >
+            Revenue
           </p>
           <span
             ref={finaleValueRef}
-            className="mt-4 block font-display text-[clamp(3rem,10vw,7.5rem)] font-bold tabular-nums text-feature-gradient"
+            className="mt-5 block font-display text-[clamp(3.5rem,13vw,10rem)] font-bold tabular-nums text-feature-gradient opacity-0"
           />
         </div>
       </div>

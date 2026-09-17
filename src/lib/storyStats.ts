@@ -13,7 +13,9 @@ export type StatRow = {
 };
 
 const int = (v: number) => Math.round(v).toString();
-const gbp = (value: number) => `£${Math.round(value).toLocaleString("en-GB")}`;
+// A thin space after the symbol keeps it from crowding the first digit at
+// the very large display sizes the turnover finale uses.
+const gbp = (value: number) => `£ ${Math.round(value).toLocaleString("en-GB")}`;
 
 export const statRows: StatRow[] = [
   {
