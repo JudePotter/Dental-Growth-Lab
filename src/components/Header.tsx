@@ -4,6 +4,7 @@ import { useState } from "react";
 import { motion, useMotionValueEvent, useScroll } from "framer-motion";
 import { LogoMark, Wordmark } from "./Logo";
 import BookCallButton from "./BookCallButton";
+import ThemeStyleToggle from "./ThemeStyleToggle";
 
 const NAV_LINKS = [
   { href: "#home", label: "Home" },
@@ -75,6 +76,9 @@ export default function Header() {
 
           <div className="flex items-center gap-2">
             <span className="hidden sm:inline-flex">
+              <ThemeStyleToggle />
+            </span>
+            <span className="hidden sm:inline-flex">
               <BookCallButton />
             </span>
             <span className="sm:hidden">
@@ -123,6 +127,7 @@ export default function Header() {
                 {link.label}
               </a>
             ))}
+            <ThemeStyleToggle variant="block" className="mt-2" />
           </div>
         </motion.nav>
       </motion.div>

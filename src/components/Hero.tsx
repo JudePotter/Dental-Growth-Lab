@@ -16,6 +16,7 @@ const ease = [0.22, 1, 0.36, 1] as const;
 export default function Hero() {
   return (
     <section id="home" className="relative overflow-hidden bg-paper text-ink">
+      <div className="hero-mesh absolute inset-0" aria-hidden="true" />
       <div className="plus-field" />
 
       <div className="relative mx-auto flex min-h-[100svh] max-w-[1000px] flex-col items-center justify-center px-6 pt-28 pb-20 text-center sm:px-10">
@@ -129,7 +130,8 @@ function ReframeContrast() {
       ref={wrapRef}
       className="relative border-t border-paper-line bg-paper-dim py-24 sm:py-32"
     >
-      <div className="structural-grid" />
+      <div className="hero-mesh hero-mesh--overlay absolute inset-0" aria-hidden="true" />
+      <div className="structural-grid reframe-grid" />
       <div className="relative mx-auto max-w-[720px] px-6 text-center sm:px-10">
         <p
           ref={lineOneRef}

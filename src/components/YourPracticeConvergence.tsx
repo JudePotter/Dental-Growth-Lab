@@ -165,7 +165,8 @@ function AnimatedPractice() {
               "radial-gradient(60% 50% at 50% 45%, rgba(108,99,255,0.14), transparent 70%)",
           }}
         />
-        <div className="structural-grid" />
+        <div className="hero-mesh hero-mesh--overlay absolute inset-0" aria-hidden="true" />
+        <div className="structural-grid reframe-grid" />
 
         <div
           ref={introRef}
@@ -257,7 +258,8 @@ function AnimatedPractice() {
 function StaticPractice() {
   return (
     <section id="your-practice" className="relative bg-paper-dim py-24">
-      <div className="structural-grid" />
+      <div className="hero-mesh hero-mesh--overlay absolute inset-0" aria-hidden="true" />
+      <div className="structural-grid reframe-grid" />
       <div className="relative mx-auto max-w-[1100px] px-6 sm:px-10">
         <h2 className="text-center font-display text-[clamp(2.5rem,7vw,4.5rem)] font-medium tracking-tight text-ink">
           Does this feel familiar?

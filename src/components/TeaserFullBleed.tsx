@@ -39,36 +39,15 @@ export default function TeaserFullBleed() {
         transition={{ duration: 0.7, ease, delay: 0.2 }}
         className="relative mt-6 max-w-[40ch] text-balance font-display text-xl font-medium text-paper/80 sm:text-2xl"
       >
-        A more animated home screen, a full story section, testimonials and
-        much much more.
-      </motion.p>
-
-      <motion.p
-        initial={{ opacity: 0, y: 14 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.7, ease, delay: 0.3 }}
-        className="relative mt-8 max-w-[38ch] text-balance text-base leading-relaxed text-paper/60 sm:text-lg"
-      >
-        Pujan, if you liked this work, this can become even better with a
-        logo and brand palette.
-      </motion.p>
-
-      <motion.p
-        initial={{ opacity: 0, y: 14 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.7, ease, delay: 0.4 }}
-        className="relative mt-3 font-display text-xl font-medium text-paper sm:text-2xl"
-      >
-        Let&apos;s work on something amazing, Pujan.
+        Testimonials, a booking system and a &ldquo;How We Can Help&rdquo;
+        section are on the way.
       </motion.p>
 
       <motion.div
         initial={{ opacity: 0, y: 14 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
-        transition={{ duration: 0.7, ease, delay: 0.5 }}
+        transition={{ duration: 0.7, ease, delay: 0.3 }}
         className="relative mt-10"
       >
         <BookCallButton variant="inverse" />
