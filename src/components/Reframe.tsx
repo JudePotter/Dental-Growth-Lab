@@ -3,6 +3,7 @@
 import { useLayoutEffect, useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { SCRUB } from "@/lib/scrollFeel";
 import { useReducedMotion } from "@/lib/useReducedMotion";
 import BookCallButton from "./BookCallButton";
 import { Reveal, ScrollLine } from "./Reveal";
@@ -41,7 +42,7 @@ function ContrastStage() {
           trigger: outerRef.current,
           start: "top 55%",
           end: "bottom bottom",
-          scrub: 0.7,
+          scrub: SCRUB,
         },
         defaults: { ease: "power2.out" },
       });

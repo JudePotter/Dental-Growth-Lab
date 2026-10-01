@@ -113,13 +113,15 @@ function Intro({
             <div className="absolute bottom-0 right-0 w-[62%]">
               <PhotoSlot
                 src={practiceSrc}
-                alt="The practice Pujan built and sold"
+                alt="Pujan Soni talking with a colleague in a dental surgery"
                 kind="practice"
                 hint="practice.jpg"
                 sizes="(min-width: 1024px) 18vw, 50vw"
+                objectPosition="50% 10%"
+                early
                 className="aspect-[4/3] w-full rounded-[1.5rem] border-[6px] border-sheet shadow-[0_30px_70px_-35px_var(--shadow)]"
               />
-              <p className="t-text absolute left-4 top-4 rounded-full bg-white/90 px-3 py-1 text-ink backdrop-blur-sm">
+              <p className="t-text absolute bottom-4 left-4 rounded-full bg-white/90 px-3 py-1 text-ink backdrop-blur-sm">
                 The practice
               </p>
             </div>

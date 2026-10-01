@@ -3,6 +3,7 @@
 import { useLayoutEffect, useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { SCRUB } from "@/lib/scrollFeel";
 import { useReducedMotion } from "@/lib/useReducedMotion";
 import { useFitZoom } from "@/lib/useFitZoom";
 
@@ -97,7 +98,7 @@ export default function SpineStage({
           trigger: outerRef.current,
           start: "top top",
           end: "bottom bottom",
-          scrub: 0.8,
+          scrub: SCRUB,
         },
         defaults: { ease: "power2.out" },
       });

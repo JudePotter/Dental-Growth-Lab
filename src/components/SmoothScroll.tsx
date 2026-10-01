@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import Lenis from "lenis";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { SCROLL_GLIDE, SCROLL_JUMP_GLIDE } from "@/lib/scrollFeel";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -33,7 +34,7 @@ export default function SmoothScroll() {
 
     if (!prefersReduced) {
       const instance = new Lenis({
-        duration: 1.15,
+        duration: SCROLL_GLIDE,
         easing: easeOutCubic,
         smoothWheel: true,
       });
@@ -57,7 +58,7 @@ export default function SmoothScroll() {
     const scrollTo = (target: HTMLElement | number, immediate = false) => {
       if (lenis) {
         lenis.scrollTo(target, {
-          duration: 1.5,
+          duration: SCROLL_JUMP_GLIDE,
           easing: easeOutCubic,
           immediate,
           force: true,

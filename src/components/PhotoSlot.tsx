@@ -14,8 +14,10 @@ export default function PhotoSlot({
   kind,
   hint,
   sizes,
+  objectPosition,
   className = "",
   priority = false,
+  early = false,
 }: {
   src: string | null;
   alt: string;
@@ -23,8 +25,17 @@ export default function PhotoSlot({
   /** File name shown on the placeholder, e.g. "pujan.jpg". */
   hint: string;
   sizes: string;
+  /** CSS object-position, to keep a face in frame when the photo is cropped. */
+  objectPosition?: string;
   className?: string;
   priority?: boolean;
+  /**
+   * For photos below the fold. Starts the download as soon as the page is
+   * ready, at low priority so nothing above the fold waits for it, instead of
+   * only when the visitor scrolls close. A big jump down the page then lands
+   * on a photo that is already there.
+   */
+  early?: boolean;
 }) {
   return (
     <div
@@ -37,7 +48,9 @@ export default function PhotoSlot({
           fill
           sizes={sizes}
           priority={priority}
+          {...(early ? { loading: "eager" as const, fetchPriority: "low" as const } : {})}
           className="object-cover"
+          style={objectPosition ? { objectPosition } : undefined}
         />
       ) : (
         <div

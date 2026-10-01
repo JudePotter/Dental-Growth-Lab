@@ -6,12 +6,17 @@ import { usePathname } from "next/navigation";
 import { motion, useMotionValueEvent, useScroll } from "framer-motion";
 import { LogoMark, Wordmark } from "./Logo";
 import BookCallButton from "./BookCallButton";
+import BackgroundToggle from "./BackgroundToggle";
 import { NAV_LINKS } from "@/lib/nav";
 
 /**
  * Fixed, always-on header. Over the coloured background it is transparent;
  * once the page scrolls it becomes a deep frosted pill, which reads cleanly
  * over both the coloured background and the pastel white My Story sheet.
+ * Six links need the room of a laptop, so below 1024px it is the menu button.
+ * The background style switch sits beside the Book a Call button, and in the
+ * menu on smaller screens. Between 1024px and 1200px the wordmark text gives
+ * way to the logo mark alone, to make the room.
  */
 export default function Header() {
   const [scrolled, setScrolled] = useState(false);
@@ -42,13 +47,13 @@ export default function Header() {
             aria-label="Dental Growth Lab, home"
           >
             <LogoMark className="h-7 w-7 text-white" />
-            <Wordmark className="hidden text-[1.05rem] lg:inline" />
+            <Wordmark className="hidden text-[1.05rem] min-[1200px]:inline" />
           </Link>
 
           <nav
             aria-label="Primary"
             onMouseLeave={() => setHovered(null)}
-            className="hidden items-center gap-1 md:flex"
+            className="hidden items-center gap-0.5 lg:flex xl:gap-1"
           >
             {NAV_LINKS.map((link) => {
               const current = link.href === pathname;
@@ -58,7 +63,7 @@ export default function Header() {
                   href={link.href}
                   onMouseEnter={() => setHovered(link.href)}
                   aria-current={current ? "page" : undefined}
-                  className={`t-nav relative rounded-full px-3.5 py-2 outline-offset-0 transition-colors duration-200 hover:text-white ${
+                  className={`t-nav relative whitespace-nowrap rounded-full px-2.5 py-2 outline-offset-0 xl:px-3.5 transition-colors duration-200 hover:text-white ${
                     current ? "text-white" : "text-white/75"
                   }`}
                 >
@@ -76,6 +81,9 @@ export default function Header() {
           </nav>
 
           <div className="flex items-center gap-2">
+            <span className="hidden lg:inline-flex">
+              <BackgroundToggle />
+            </span>
             <span className="hidden sm:inline-flex">
               <BookCallButton />
             </span>
@@ -88,7 +96,7 @@ export default function Header() {
               aria-expanded={menuOpen}
               aria-controls="mobile-nav"
               aria-label={menuOpen ? "Close menu" : "Open menu"}
-              className="ml-1 flex h-9 w-9 flex-col items-center justify-center gap-1.5 md:hidden"
+              className="ml-1 flex h-9 w-9 flex-col items-center justify-center gap-1.5 lg:hidden"
             >
               <motion.span
                 animate={{ rotate: menuOpen ? 45 : 0, y: menuOpen ? 4 : 0 }}
@@ -112,7 +120,7 @@ export default function Header() {
               : { height: 0, opacity: 0 }
           }
           transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-          className="overflow-hidden md:hidden"
+          className="overflow-hidden lg:hidden"
         >
           <div className="flex flex-col gap-1 border-t border-white/12 px-5 py-4 sm:px-6">
             {NAV_LINKS.map((link) => (
@@ -125,6 +133,10 @@ export default function Header() {
                 {link.label}
               </Link>
             ))}
+            <div className="mt-2 flex items-center justify-between border-t border-white/12 px-2 pt-4">
+              <span className="t-lead text-white/85">Background</span>
+              <BackgroundToggle variant="block" />
+            </div>
           </div>
         </motion.nav>
       </div>

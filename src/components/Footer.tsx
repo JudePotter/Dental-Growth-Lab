@@ -15,8 +15,9 @@ const SOCIALS = [
 const CONTACT_EMAIL = process.env.NEXT_PUBLIC_CONTACT_EMAIL ?? "hello@dentalgrowthlab.co.uk";
 const CONTACT_PHONE = process.env.NEXT_PUBLIC_CONTACT_PHONE ?? "020 7946 0958";
 
-const COLUMN_HEADING = "t-label text-white/55";
-const COLUMN_LINK = "t-small break-words text-white/85 transition-colors hover:text-white";
+const COLUMN_HEADING = "t-label text-ink-black/55";
+const COLUMN_LINK =
+  "t-small break-words text-ink-black transition-colors hover:text-royal-600";
 
 /**
  * The footer. It is fixed to the bottom of the screen, *behind* the page
@@ -44,21 +45,17 @@ export default function Footer() {
   }, []);
 
   return (
-    <footer ref={ref} className="site-footer overflow-x-clip bg-royal-950 text-white">
-      {/* The footer's backdrop and glow run up behind the page shell by the
+    <footer
+      ref={ref}
+      className="site-footer on-sheet overflow-x-clip bg-white text-ink-black"
+    >
+      {/* The footer's white backdrop runs up behind the page shell by the
           shell's corner radius. The shell's rounded bottom corners cut away
           that strip, so what shows through them is the footer itself,
-          continuing seamlessly, not the plain page colour. The glow radii
-          are written in the footer's own height so they match what sits
-          below the line. */}
+          continuing seamlessly, not the plain page colour. */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 bottom-0 top-[calc(-1*var(--shell-radius))]"
-        style={{
-          backgroundColor: "var(--color-royal-950)",
-          backgroundImage:
-            "radial-gradient(50% calc(var(--footer-h) * 0.7) at 12% var(--shell-radius), color-mix(in oklab, var(--color-royal-600) 55%, transparent), transparent 70%), radial-gradient(45% calc(var(--footer-h) * 0.6) at 100% 100%, color-mix(in oklab, var(--color-royal-500) 35%, transparent), transparent 70%)",
-        }}
+        className="pointer-events-none absolute inset-x-0 bottom-0 top-[calc(-1*var(--shell-radius))] bg-white"
       />
 
       <div className="relative mx-auto max-w-[1400px] px-6 pb-5 pt-[clamp(2rem,6vh,3.5rem)] sm:px-10">
@@ -71,7 +68,7 @@ export default function Footer() {
               Build a practice that works for you, without you.
             </p>
             <div className="mt-5">
-              <BookCallButton />
+              <BookCallButton variant="solid" />
             </div>
           </div>
 
@@ -114,16 +111,16 @@ export default function Footer() {
           className="mt-[clamp(1.25rem,4vh,2.5rem)] flex items-end gap-[0.2em] whitespace-nowrap font-display leading-[0.9] tracking-[-0.045em]"
           style={{ fontSize: "min(7.2vw, 16vh, 8rem)" }}
         >
-          <LogoMark className="mb-[0.06em] h-[0.95em] w-[0.95em] shrink-0 text-white/90" />
+          <LogoMark className="mb-[0.06em] h-[0.95em] w-[0.95em] shrink-0 text-ink-black/90" />
           <span
-            className="bg-gradient-to-b from-white to-white/25 bg-clip-text text-transparent"
+            className="bg-gradient-to-b from-ink-black to-ink-black/60 bg-clip-text text-transparent"
             style={{ fontWeight: "var(--w-display)" }}
           >
             Dental Growth Lab
           </span>
         </div>
 
-        <p className="t-small mt-4 text-white/55">
+        <p className="t-small mt-4 text-ink-black/55">
           © {new Date().getFullYear()} Dental Growth Lab. All rights reserved.
         </p>
       </div>

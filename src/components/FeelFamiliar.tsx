@@ -3,6 +3,7 @@
 import { useLayoutEffect, useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { SCRUB } from "@/lib/scrollFeel";
 import {
   familiarAfter,
   familiarHeading,
@@ -171,7 +172,7 @@ export default function FeelFamiliar() {
           trigger: outerRef.current,
           start: "top top",
           end: "bottom bottom",
-          scrub: 0.8,
+          scrub: SCRUB,
           invalidateOnRefresh: true,
         },
         defaults: { ease: "none" },
