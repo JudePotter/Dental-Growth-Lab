@@ -1,101 +1,80 @@
 @import "tailwindcss";
 
 /*
-  Three full-site colourways, driven entirely by tokens. Default (no
-  data-theme attribute, or data-theme="periwinkle") is Scheme A. Setting
-  data-theme="calendly" or data-theme="teal" on any ancestor (the html
-  element for a site-wide switch, or a single wrapper for a side-by-side
-  preview) swaps every accent colour beneath it. See lib/themes.ts and
-  layout.tsx for the ?theme= URL switch.
+  ONE KNOB FOR COLOUR.
+
+  Every colour on the site is derived from --hue below. Change that one
+  number (0 to 360) and the whole palette, background gradient, shadows and
+  illustrations follow. 264 is the current blue. Try 200 for teal, 160 for
+  green, 300 for purple, 25 for red.
 */
-:root,
-[data-theme="periwinkle"] {
-  --color-paper: #ffffff;
-  --color-paper-dim: #f4f5f7;
-  --color-paper-line: #e3e5e9;
-
-  --color-ink: #0c0f0e;
-  --color-ink-soft: #171a19;
-  --color-ink-line: rgba(12, 15, 14, 0.1);
-
-  --color-mist: #8e9196;
-  --color-mist-dim: #5c5f65;
-  --color-mist-line: #dcdee2;
-
-  --color-moss: #6c63ff;
-  --color-moss-bright: #857dff;
-  --color-moss-soft: #eae8ff;
-  --color-moss-text: #4b40d6;
-
-  --gradient-feature: linear-gradient(135deg, #6c63ff 0%, #857dff 100%);
-}
-
-[data-theme="calendly"] {
-  --color-paper: #ffffff;
-  --color-paper-dim: #f4f5f7;
-  --color-paper-line: #e3e5e9;
-
-  --color-ink: #0c0f0e;
-  --color-ink-soft: #171a19;
-  --color-ink-line: rgba(12, 15, 14, 0.1);
-
-  --color-mist: #8e9196;
-  --color-mist-dim: #5c5f65;
-  --color-mist-line: #dcdee2;
-
-  --color-moss: #3e6bc0;
-  --color-moss-bright: #6f9ade;
-  --color-moss-soft: #cee1f9;
-  --color-moss-text: #2c4f8f;
-
-  --gradient-feature: linear-gradient(135deg, #6f9ade 0%, #92ddd7 100%);
-}
-
-[data-theme="teal"] {
-  --color-paper: #ffffff;
-  --color-paper-dim: #f4f5f7;
-  --color-paper-line: #e3e5e9;
-
-  --color-ink: #0c0f0e;
-  --color-ink-soft: #171a19;
-  --color-ink-line: rgba(12, 15, 14, 0.1);
-
-  --color-mist: #8e9196;
-  --color-mist-dim: #5c5f65;
-  --color-mist-line: #dcdee2;
-
-  --color-moss: #0f6f5c;
-  --color-moss-bright: #159179;
-  --color-moss-soft: #e1f3ee;
-  --color-moss-text: #0b5245;
-
-  --gradient-feature: linear-gradient(135deg, #0f6f5c 0%, #159179 100%);
-}
-
 :root {
+  --hue: 264;
+
+  /* Space the fixed header occupies. Every pinned stage pads its top by
+     this so nothing is ever trapped underneath it. */
+  --header-h: 5rem;
+
+  /* Height of the footer that is revealed behind the page. Measured and
+     set by the footer itself; this is only the pre-JS fallback. */
+  --footer-h: 30rem;
+  --shell-radius: clamp(1.5rem, 3.2vw, 2.75rem);
+
+  /* Two weights for all content: display and body. The middle weight is
+     only used by the hero, the nav and the footer. */
+  --w-display: 600;
+  --w-body: 400;
+  --w-heading: 500;
+
+  /*
+    Type. Content sections use exactly two sizes at any one time:
+    BIG (statements and section titles) and TEXT (everything else). The
+    dense pinned stages use FIT, a viewport-height-aware text size, so the
+    text always fits a short laptop screen.
+    The hero, nav and footer keep their own scale below.
+  */
+  --fs-big: clamp(1.875rem, 3.5vw, 3.25rem);
+  --fs-text: clamp(1rem, 1.3vw, 1.3125rem);
+  --fs-fit: clamp(0.8125rem, min(1.15vw, 2.35vh), 1.3rem);
+  --fs-mega: clamp(3.25rem, 7.6vw, 6.75rem);
+  --fs-statement: clamp(1.5rem, 2.5vw, 2.25rem);
+
+  --fs-display: clamp(2.25rem, 4.3vw, 3.9rem);
+  --fs-h2: clamp(1.75rem, 3vw, 2.6rem);
+  --fs-h3: clamp(1.25rem, 2vw, 1.75rem);
+  --fs-lead: clamp(1.0625rem, 1.4vw, 1.3125rem);
+  --fs-small: 0.875rem;
+  --fs-label: 0.75rem;
+
+  /* Shadow colour, from the hue. */
+  --shadow: oklch(0.16 0.08 var(--hue) / 0.7);
+}
+
+@theme {
+  --color-royal-950: oklch(0.221 0.088 var(--hue));
+  --color-royal-900: oklch(0.276 0.123 var(--hue));
+  --color-royal-800: oklch(0.34 0.154 var(--hue));
+  --color-royal-700: oklch(0.412 0.197 var(--hue));
+  --color-royal-600: oklch(0.47 0.222 var(--hue));
+  --color-royal-500: oklch(0.556 0.227 var(--hue));
+
+  --color-sky-400: oklch(0.703 0.155 var(--hue));
+  --color-sky-300: oklch(0.797 0.102 var(--hue));
+  --color-sky-200: oklch(0.881 0.057 var(--hue));
+  --color-sky-100: oklch(0.942 0.027 var(--hue));
+
+  /* Pastel white: the light surface for My Story and the fit table. */
+  --color-sheet: oklch(0.973 0.012 var(--hue));
+  --color-sheet-line: oklch(0.85 0.04 var(--hue));
+
+  --color-ink: oklch(0.243 0.09 var(--hue));
+  --color-ink-soft: oklch(0.452 0.074 var(--hue));
+
+  /* Warm accent used sparingly in the illustrations. */
+  --color-gold: oklch(0.86 0.15 85);
+
   --font-display: var(--font-bricolage);
   --font-body: var(--font-manrope);
-}
-
-@theme inline {
-  --color-paper: var(--color-paper);
-  --color-paper-dim: var(--color-paper-dim);
-  --color-paper-line: var(--color-paper-line);
-
-  --color-ink: var(--color-ink);
-  --color-ink-soft: var(--color-ink-soft);
-
-  --color-mist: var(--color-mist);
-  --color-mist-dim: var(--color-mist-dim);
-  --color-mist-line: var(--color-mist-line);
-
-  --color-moss: var(--color-moss);
-  --color-moss-bright: var(--color-moss-bright);
-  --color-moss-soft: var(--color-moss-soft);
-  --color-moss-text: var(--color-moss-text);
-
-  --font-display: var(--font-display);
-  --font-body: var(--font-body);
 }
 
 * {
@@ -103,15 +82,10 @@
 }
 
 html {
-  background: var(--color-paper);
+  /* The deep colour behind the page. It is what shows through when the
+     page lifts away to reveal the footer, and on overscroll. */
+  background: var(--color-royal-950);
   scroll-behavior: auto;
-  --scatter-scale: 1;
-}
-
-@media (max-width: 700px) {
-  html {
-    --scatter-scale: 0.62;
-  }
 }
 
 html.lenis {
@@ -119,15 +93,21 @@ html.lenis {
 }
 
 body {
-  background: var(--color-paper);
-  color: var(--color-ink);
+  background: transparent;
+  color: #fff;
   font-family: var(--font-body);
+  font-weight: var(--w-body);
   overflow-x: clip;
 }
 
+strong,
+b {
+  font-weight: var(--w-display);
+}
+
 ::selection {
-  background: var(--color-moss);
-  color: var(--color-paper);
+  background: #fff;
+  color: var(--color-royal-700);
 }
 
 a,
@@ -136,108 +116,266 @@ button {
 }
 
 :focus-visible {
-  outline: 2px solid var(--color-moss);
+  outline: 2px solid #fff;
   outline-offset: 3px;
 }
 
-.font-display {
-  font-family: var(--font-display);
+.on-sheet :focus-visible {
+  outline-color: var(--color-royal-600);
 }
 
-/* Faint structural grid motif, low-opacity, tiled behind content */
-.structural-grid {
+/*
+  The page shell. Everything except the header and the footer lives in it.
+  It sits above the footer, which is fixed to the bottom of the screen
+  behind it, so at the very end the shell lifts away (rounded corners and
+  all) and the footer is revealed underneath.
+
+  The rounded bottom edge is a clip-path, not overflow: clip with a
+  border-radius. On a high density screen the shell is tens of thousands of
+  device pixels tall, and a rounded overflow clip around backdrop-filter
+  children makes Chrome rasterise it as one oversized surface, which tears:
+  content vanishes and the shell stops short of the footer. A clip-path
+  clips the same shape without that failure.
+*/
+.page-shell {
+  position: relative;
+  z-index: 1;
+  isolation: isolate;
+  clip-path: inset(0 round 0 0 var(--shell-radius) var(--shell-radius));
+  margin-bottom: var(--footer-h);
+}
+
+/*
+  The one full-screen background. Sticky inside the shell, so it stays put
+  while sections scroll over it, then rises with the shell's bottom edge at
+  the end. The bright glow is kept to the top right corner and the pale one
+  to the bottom left, leaving the middle a solid rich colour so white copy
+  keeps its contrast wherever it scrolls.
+*/
+.site-bg {
+  position: sticky;
+  top: 0;
+  height: 100svh;
+  margin-bottom: -100svh;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(46% 42% at 90% 4%, oklch(1 0 0 / 0.22), transparent 72%),
+    radial-gradient(44% 46% at 4% 98%, oklch(0.797 0.102 var(--hue) / 0.4), transparent 72%),
+    radial-gradient(60% 55% at 52% 44%, oklch(0.556 0.227 var(--hue) / 0.5), transparent 78%),
+    linear-gradient(
+      162deg,
+      oklch(0.355 0.177 var(--hue)) 0%,
+      oklch(0.463 0.22 var(--hue)) 46%,
+      oklch(0.332 0.16 var(--hue)) 100%
+    );
+}
+
+.site-bg::after {
+  content: "";
   position: absolute;
   inset: 0;
-  pointer-events: none;
   background-image: repeating-linear-gradient(
     90deg,
-    var(--color-ink-line) 0,
-    var(--color-ink-line) 1px,
+    oklch(1 0 0 / 0.05) 0,
+    oklch(1 0 0 / 0.05) 1px,
     transparent 1px,
-    transparent clamp(60px, 8vw, 120px)
+    transparent clamp(64px, 8vw, 128px)
   );
-  opacity: 0.5;
+  -webkit-mask-image: radial-gradient(75% 75% at 50% 45%, #000, transparent 100%);
+  mask-image: radial-gradient(75% 75% at 50% 45%, #000, transparent 100%);
 }
 
-.structural-grid--dark {
-  background-image: repeating-linear-gradient(
-    90deg,
-    rgba(255, 255, 255, 0.06) 0,
-    rgba(255, 255, 255, 0.06) 1px,
-    transparent 1px,
-    transparent clamp(60px, 8vw, 120px)
-  );
+/* The footer, fixed behind the shell and revealed at the end. */
+.site-footer {
+  position: fixed;
+  inset-inline: 0;
+  bottom: 0;
+  z-index: 0;
 }
 
-.text-balance {
-  text-wrap: balance;
+/*
+  Type utilities. Font weight is set here and nowhere else.
+
+  Content uses t-big (600) and t-text (400). The t-fit pair is the dense
+  stage version of t-text. The rest are for the hero, nav and footer only.
+*/
+@utility t-big {
+  font-family: var(--font-display);
+  font-weight: var(--w-display);
+  font-size: var(--fs-big);
+  line-height: 1.08;
+  letter-spacing: -0.03em;
 }
 
-/* The "big moment" gradient for each colourway: hero accents, the turnover
-   finale and key section highlights. Solid colour fallback keeps text
-   readable in browsers without background-clip: text support. */
-.text-feature-gradient {
-  color: var(--color-moss-text);
-  background-image: var(--gradient-feature);
+@utility t-text {
+  font-family: var(--font-body);
+  font-weight: var(--w-body);
+  font-size: var(--fs-text);
+  line-height: 1.55;
+}
+
+@utility t-text-strong {
+  font-family: var(--font-body);
+  font-weight: var(--w-display);
+  font-size: var(--fs-text);
+  line-height: 1.5;
+}
+
+@utility t-fit {
+  font-family: var(--font-body);
+  font-weight: var(--w-body);
+  font-size: var(--fs-fit);
+  line-height: 1.45;
+}
+
+@utility t-fit-strong {
+  font-family: var(--font-body);
+  font-weight: var(--w-display);
+  font-size: var(--fs-fit);
+  line-height: 1.4;
+}
+
+@utility t-mega {
+  font-family: var(--font-display);
+  font-weight: var(--w-display);
+  font-size: var(--fs-mega);
+  line-height: 0.96;
+  letter-spacing: -0.035em;
+}
+
+@utility t-statement {
+  font-family: var(--font-display);
+  font-weight: var(--w-display);
+  font-size: var(--fs-statement);
+  line-height: 1.24;
+  letter-spacing: -0.022em;
+}
+
+@utility t-ui {
+  font-family: var(--font-body);
+  font-weight: var(--w-display);
+  font-size: 0.9rem;
+  line-height: 1.2;
+  letter-spacing: 0.01em;
+}
+
+@utility t-nav {
+  font-family: var(--font-body);
+  font-weight: var(--w-heading);
+  font-size: 0.9rem;
+  line-height: 1.2;
+  letter-spacing: 0.01em;
+}
+
+/* Hero, nav and footer scale. */
+@utility t-display {
+  font-family: var(--font-display);
+  font-weight: var(--w-display);
+  font-size: var(--fs-display);
+  line-height: 1.04;
+  letter-spacing: -0.03em;
+}
+
+@utility t-h2 {
+  font-family: var(--font-display);
+  font-weight: var(--w-heading);
+  font-size: var(--fs-h2);
+  line-height: 1.1;
+  letter-spacing: -0.025em;
+}
+
+@utility t-h3 {
+  font-family: var(--font-display);
+  font-weight: var(--w-heading);
+  font-size: var(--fs-h3);
+  line-height: 1.2;
+  letter-spacing: -0.015em;
+}
+
+@utility t-lead {
+  font-family: var(--font-body);
+  font-weight: var(--w-body);
+  font-size: var(--fs-lead);
+  line-height: 1.5;
+}
+
+@utility t-small {
+  font-family: var(--font-body);
+  font-weight: var(--w-body);
+  font-size: var(--fs-small);
+  line-height: 1.55;
+}
+
+@utility t-label {
+  font-family: var(--font-body);
+  font-weight: var(--w-heading);
+  font-size: var(--fs-label);
+  line-height: 1.2;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+/*
+  Scoped type scales. Every type utility above reads its size from a custom
+  property, so a section can opt into a smaller scale by overriding those
+  properties on its wrapper. The markup and the two sizes rule stay as they
+  are.
+
+  type-story: My Story. The big statements run at about half their normal
+  size. Body copy and the dense stat cells only drop to a readable floor.
+
+  type-box: the Book a Call boxes. Body size about 80% of normal.
+
+  type-compact: the long copy beats on the home page. A notch smaller, and
+  tied to the viewport height as well as the width, so a section heading and
+  its Book a Call button can sit on screen together on a laptop.
+*/
+.type-story {
+  --fs-big: clamp(1.25rem, 1.75vw, 1.625rem);
+  --fs-text: clamp(0.9375rem, 1vw, 1.0625rem);
+  --fs-fit: clamp(0.8125rem, min(0.95vw, 2vh), 1rem);
+  --fs-mega: clamp(1.75rem, 3.8vw, 3.375rem);
+}
+
+.type-box {
+  --fs-text: clamp(0.875rem, 1.05vw, 1.0625rem);
+}
+
+.type-compact {
+  --fs-big: clamp(1.5rem, min(2.7vw, 4.9vh), 2.5rem);
+  --fs-text: clamp(0.9375rem, min(1.05vw, 1.95vh), 1.125rem);
+}
+
+/* Highlight text for the big moments: white easing into pale colour. */
+@utility text-glow {
+  background-image: linear-gradient(100deg, #ffffff 0%, var(--color-sky-200) 100%);
   background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+  color: #fff;
 }
 
-.bg-feature-gradient {
-  background-image: var(--gradient-feature);
+/* The same idea on a light surface. */
+@utility text-royal-gradient {
+  background-image: linear-gradient(100deg, var(--color-royal-700) 0%, var(--color-royal-500) 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: var(--color-royal-600);
 }
 
-/* "Style 2": the soft, blurred mesh backdrop sampled from Calendly's
-   marketing site, toggled via the header's style button. Only the
-   calendly colourway paints it; every other theme leaves this transparent
-   so the section's normal paper background shows through unchanged. */
-.hero-mesh {
-  background: transparent;
-  transition: opacity 0.4s ease;
+/* A full-viewport pinned stage. Padding reserves the header's space so the
+   stage content can never sit underneath it. */
+@utility stage {
+  height: 100svh;
+  padding-top: var(--header-h);
 }
 
-[data-theme="calendly"] .hero-mesh {
-  background-image:
-    radial-gradient(48% 42% at 12% 18%, rgba(111, 154, 222, 0.5), transparent 72%),
-    radial-gradient(46% 38% at 88% 12%, rgba(133, 125, 255, 0.32), transparent 70%),
-    radial-gradient(58% 50% at 78% 82%, rgba(146, 221, 215, 0.55), transparent 72%),
-    radial-gradient(50% 44% at 15% 88%, rgba(146, 221, 215, 0.35), transparent 70%),
-    linear-gradient(180deg, #eef4fb 0%, #ffffff 65%);
-}
-
-/* Same mesh, but without the linear-gradient base coat, for sections that
-   sit on top of an existing paper/paper-dim background rather than owning
-   their own white backdrop (the reframe quote and "Does this feel
-   familiar?" sections). */
-[data-theme="calendly"] .hero-mesh--overlay {
-  background-image:
-    radial-gradient(48% 42% at 12% 18%, rgba(111, 154, 222, 0.4), transparent 72%),
-    radial-gradient(46% 38% at 88% 12%, rgba(133, 125, 255, 0.26), transparent 70%),
-    radial-gradient(58% 50% at 78% 82%, rgba(146, 221, 215, 0.45), transparent 72%),
-    radial-gradient(50% 44% at 15% 88%, rgba(146, 221, 215, 0.28), transparent 70%);
-}
-
-/* Style 2 drops the structural grid lines on the reframe quote and "Does
-   this feel familiar?" sections in favour of the gradient mesh above. */
-[data-theme="calendly"] .reframe-grid {
-  display: none;
-}
-
-/* Tiled plus-mark field that fades out toward the bottom, echoing the
-   reference site's header texture. */
-.plus-field {
-  position: absolute;
-  inset: 0;
-  height: min(560px, 60vh);
-  pointer-events: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Cpath d='M20 15v10M15 20h10' stroke='%23dcdae3' stroke-width='1.3' stroke-linecap='round'/%3E%3C/svg%3E");
-  background-repeat: repeat;
-  background-size: 40px 40px;
-  opacity: 0.7;
-  -webkit-mask-image: linear-gradient(to bottom, black, transparent 92%);
-  mask-image: linear-gradient(to bottom, black, transparent 92%);
-}
+/* Feel Familiar's pinned scatter needs room to lay twelve readable cards out
+   without overlap, so it only pins on screens at least this big. Anything
+   smaller gets the plain flow layout. */
+@custom-variant stagey (@media (min-width: 1200px) and (min-height: 700px));
 
 @media (prefers-reduced-motion: reduce) {
   *,
@@ -249,5 +387,3 @@ button {
     scroll-behavior: auto !important;
   }
 }
-
-

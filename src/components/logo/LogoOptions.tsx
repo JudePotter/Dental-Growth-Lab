@@ -132,7 +132,10 @@ export const MARK_OPTIONS = [
 
 export function WordmarkStandard({ className }: MarkProps) {
   return (
-    <span className={`font-display font-medium tracking-tight ${className ?? ""}`}>
+    <span
+      className={`font-display tracking-tight ${className ?? ""}`}
+      style={{ fontWeight: "var(--w-heading)" }}
+    >
       Dental Growth Lab
     </span>
   );
@@ -141,7 +144,8 @@ export function WordmarkStandard({ className }: MarkProps) {
 export function WordmarkCompact({ className }: MarkProps) {
   return (
     <span
-      className={`font-body font-semibold uppercase tracking-[0.16em] ${className ?? ""}`}
+      className={`font-body uppercase tracking-[0.16em] ${className ?? ""}`}
+      style={{ fontWeight: "var(--w-heading)" }}
     >
       Dental Growth Lab
     </span>

@@ -25,7 +25,10 @@ export function LogoMark({ className }: LogoProps) {
 
 export function Wordmark({ className }: LogoProps) {
   return (
-    <span className={`font-display font-medium tracking-tight ${className ?? ""}`}>
+    <span
+      className={`font-display tracking-tight ${className ?? ""}`}
+      style={{ fontWeight: "var(--w-heading)" }}
+    >
       Dental Growth Lab
     </span>
   );

@@ -1,21 +1,29 @@
-import Header from "@/components/Header";
 import Hero from "@/components/Hero";
-import YourPracticeConvergence from "@/components/YourPracticeConvergence";
-import MyStoryTransformation from "@/components/MyStoryTransformation";
-import TeaserFullBleed from "@/components/TeaserFullBleed";
-import Footer from "@/components/Footer";
+import Reframe from "@/components/Reframe";
+import FeelFamiliar from "@/components/FeelFamiliar";
+import MyStory from "@/components/MyStory";
+import HowWeCanHelp from "@/components/HowWeCanHelp";
+import WorkTeaser from "@/components/WorkTeaser";
+import Testimonials from "@/components/Testimonials";
+import ContactSection from "@/components/ContactSection";
+import { findPublicImage } from "@/lib/images";
 
 export default function Home() {
   return (
     <>
-      <Header />
       <main>
         <Hero />
-        <YourPracticeConvergence />
-        <MyStoryTransformation />
-        <TeaserFullBleed />
+        <Reframe />
+        <FeelFamiliar />
+        <MyStory
+          founderSrc={findPublicImage("pujan")}
+          practiceSrc={findPublicImage("practice")}
+        />
+        <HowWeCanHelp />
+        <WorkTeaser />
+        <Testimonials />
+        <ContactSection />
       </main>
-      <Footer />
     </>
   );
 }

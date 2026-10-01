@@ -3,7 +3,8 @@ import { Bricolage_Grotesque, Manrope } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 import SmoothScroll from "@/components/SmoothScroll";
-import { themeBootScript } from "@/lib/themes";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 
 const bricolage = Bricolage_Grotesque({
   variable: "--font-bricolage",
@@ -28,14 +29,17 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     <html
       lang="en"
       className={`${bricolage.variable} ${manrope.variable} h-full antialiased`}
-      suppressHydrationWarning
     >
-      <head>
-        <script dangerouslySetInnerHTML={{ __html: themeBootScript() }} />
-      </head>
-      <body className="min-h-full bg-paper text-ink">
+      <body className="min-h-full text-white">
         <SmoothScroll />
-        {children}
+        <Header />
+        {/* The page. It lifts away at the very end to reveal the footer,
+            which is fixed behind it. */}
+        <div className="page-shell">
+          <div className="site-bg" aria-hidden="true" />
+          {children}
+        </div>
+        <Footer />
         <Analytics />
       </body>
     </html>

@@ -1,3 +1,38 @@
+## Dental Growth Lab: content and config
+
+**Environment** (copy `.env.local.example` to `.env.local`):
+
+- `NEXT_PUBLIC_BOOKING_URL`: the Calendly link embedded in the Contact section.
+- `NEXT_PUBLIC_WEB3FORMS_KEY`: the Web3Forms access key for the enquiry form
+  ("Send to founder"). Until it is set the form shows its confirmation but
+  sends nothing (a console warning says so).
+- `NEXT_PUBLIC_CONTACT_EMAIL`, `NEXT_PUBLIC_CONTACT_PHONE`: shown under the form.
+
+These are inlined at build time, so re-run `npm run build` after changing them.
+
+**Photos**: drop files into `public/images/` and rebuild. They are picked up
+automatically, with no code changes:
+
+- `pujan.jpg` (founder) and `practice.jpg` (the practice) on My Story
+- `testimonial-1.jpg`, `testimonial-2.jpg`, `testimonial-3.jpg` on Testimonials
+
+`.jpg`, `.jpeg`, `.png`, `.webp` and `.avif` all work.
+
+**Colour**: the whole palette comes from one number. In `src/app/globals.css`,
+change `--hue` (0 to 360) and the background, tiles, illustrations, table,
+buttons and footer all follow. 264 is the current blue.
+
+**Type rule**: content sections use two sizes and two weights at a time. Big
+(`t-big`, weight 600) for statements and section titles, text (`t-text`,
+weight 400) for everything else, and `t-fit` for the dense pinned stages. The
+hero, nav and footer keep their own scale.
+
+**Footer**: the footer is fixed behind the page and revealed when the page
+lifts away at the very end (`.page-shell` and `.site-footer` in `globals.css`).
+
+**Copy** lives in `src/lib/` (`familiar.ts`, `story.ts`, `pillars.ts`,
+`howWeWork.ts`, `testimonials.ts`). No pricing appears anywhere on the site.
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started
