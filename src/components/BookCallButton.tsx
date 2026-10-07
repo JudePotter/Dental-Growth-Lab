@@ -16,18 +16,18 @@ const styles: Record<Variant, string> = {
 const MotionLink = motion.create(Link);
 
 /**
- * The persistent site-wide CTA. Defaults to the contact section on the home
- * page (Calendly on the left, enquiry form on the right).
+ * The persistent site-wide CTA. Defaults to the Book a Call page (Calendly on
+ * the left, enquiry form on the right).
  */
 export default function BookCallButton({
   variant = "light",
   className = "",
   label = "Book a Call",
-  href = "/#contact",
+  href = "/book-a-call",
   size = "md",
 }: {
   variant?: Variant;
-  size?: "md" | "lg";
+  size?: "md" | "lg" | "xl";
   className?: string;
   label?: string;
   href?: string;
@@ -36,10 +36,15 @@ export default function BookCallButton({
     whileHover: { y: -1 },
     whileTap: { scale: 0.97 },
     transition: { type: "spring" as const, stiffness: 400, damping: 25 },
-    className: `t-ui inline-flex items-center justify-center rounded-full transition-colors duration-200 ${
-      size === "lg" ? "px-8 py-4" : "px-6 py-3"
+    className: `t-ui inline-flex items-center justify-center whitespace-nowrap rounded-full transition-colors duration-200 ${
+      size === "xl" ? "px-12 py-5" : size === "lg" ? "px-8 py-4" : "px-6 py-3"
     } ${styles[variant]} ${className}`,
-    style: size === "lg" ? { fontSize: "1rem" } : undefined,
+    style:
+      size === "xl"
+        ? { fontSize: "clamp(1.0625rem, 1.5vw, 1.3rem)" }
+        : size === "lg"
+          ? { fontSize: "1rem" }
+          : undefined,
   };
 
   if (/^https?:\/\//.test(href)) {

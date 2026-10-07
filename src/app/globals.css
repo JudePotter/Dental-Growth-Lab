@@ -48,6 +48,29 @@
 
   /* Shadow colour, from the hue. */
   --shadow: oklch(0.16 0.08 var(--hue) / 0.7);
+
+  /*
+    How light Style 1 (the default background) is. Added to the lightness of
+    its base gradient and bloom, so one number lightens or darkens the whole
+    site. Raise it for lighter, but white text loses contrast as it goes up.
+  */
+  --bg-lift: 0.03;
+
+  /*
+    Style 2 (the deeper royal blue), kept in one place. It is the background
+    of the two sections that use it (the pain points, and Is Dental Coaching
+    For Me?). See .section-rich below.
+  */
+  --rich-core:
+    radial-gradient(46% 42% at 90% 4%, oklch(1 0 0 / 0.22), transparent 72%),
+    radial-gradient(44% 46% at 4% 98%, oklch(0.797 0.102 var(--hue) / 0.4), transparent 72%),
+    radial-gradient(60% 55% at 52% 44%, oklch(0.556 0.227 var(--hue) / 0.5), transparent 78%),
+    linear-gradient(
+      162deg,
+      oklch(0.355 0.177 var(--hue)) 0%,
+      oklch(0.463 0.22 var(--hue)) 46%,
+      oklch(0.332 0.16 var(--hue)) 100%
+    );
 }
 
 @theme {
@@ -76,6 +99,13 @@
   /* Warm accent used sparingly in the illustrations. */
   --color-gold: oklch(0.86 0.15 85);
 
+  /* Red for the pain points: it reads as the problem. A fixed hue on purpose,
+     so recolouring the site with --hue never turns the pain cards blue. */
+  --color-pain-700: oklch(0.43 0.17 24);
+  --color-pain-600: oklch(0.52 0.2 25);
+  --color-pain-500: oklch(0.58 0.21 26);
+  --color-pain-300: oklch(0.8 0.1 22);
+
   --font-display: var(--font-bricolage);
   --font-body: var(--font-manrope);
 }
@@ -85,6 +115,9 @@
 }
 
 html {
+  /* Stops iOS Safari inflating text when the phone is turned sideways. */
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
   /* The deep colour behind the page. It is what shows through when the
      page lifts away to reveal the footer, and on overscroll. */
   background: var(--color-royal-950);
@@ -151,18 +184,17 @@ button {
 /*
   The one full-screen background. Sticky inside the shell, so it stays put
   while sections scroll over it, then rises with the shell's bottom edge at
-  the end. Two styles, picked with the switch in the header (html[data-bg]):
+  the end.
 
-  Style 1 (bright, the default): a bright azure blue in the manner of a
+  Style 1 (bright): a bright azure blue in the manner of a
   painted gradient. Luminous sky, cyan and mint glows sit in the corners and
   a bright bloom up top, over a vivid azure base. The hue is turned a little
   towards cyan from the site blue, so it reads as a different colour from
   Style 2 and not just a lighter one. Every colour is the site hue plus an
   offset, so --hue still recolours it.
 
-  Style 2 (rich): the original deep blue. The bright glow is kept to the top
-  right corner and the pale one to the bottom left, leaving the middle a
-  solid rich colour.
+  Style 2 (the deep blue, --rich-core) is not a whole-page background. It is
+  used by individual sections, see .section-rich.
 
   Both are sized to the LARGEST viewport (lvh), not the small one. On iPad and
   iPhone Safari the toolbars collapse as you scroll and the screen grows
@@ -186,26 +218,60 @@ button {
     radial-gradient(60% 58% at 0% 102%, oklch(0.88 0.075 calc(var(--hue) - 30) / 0.57), transparent 74%),
     radial-gradient(48% 48% at 100% 100%, oklch(0.86 0.085 calc(var(--hue) - 80) / 0.45), transparent 72%),
     radial-gradient(36% 44% at 0% 34%, oklch(0.84 0.085 calc(var(--hue) + 20) / 0.35), transparent 72%),
-    radial-gradient(66% 52% at 46% 24%, oklch(0.64 0.16 calc(var(--hue) - 16) / 0.75), transparent 78%),
+    radial-gradient(66% 52% at 46% 24%, oklch(calc(0.64 + var(--bg-lift)) 0.16 calc(var(--hue) - 16) / 0.75), transparent 78%),
     linear-gradient(
       165deg,
-      oklch(0.52 0.2 calc(var(--hue) - 12)) 0%,
-      oklch(0.57 0.185 calc(var(--hue) - 16)) 50%,
-      oklch(0.49 0.2 calc(var(--hue) - 10)) 100%
+      oklch(calc(0.52 + var(--bg-lift)) 0.2 calc(var(--hue) - 12)) 0%,
+      oklch(calc(0.57 + var(--bg-lift)) 0.185 calc(var(--hue) - 16)) 50%,
+      oklch(calc(0.49 + var(--bg-lift)) 0.2 calc(var(--hue) - 10)) 100%
     );
 }
 
-html[data-bg="rich"] .site-bg {
+/*
+  Style 2 for one section. The section brings its own background: the same
+  deep blue as the Style 2 switch, on a layer that is sticky inside the
+  section (like .site-bg is inside the shell), so the glows stay put on
+  screen while the section scrolls over them. A clip-path rounds the top
+  corners (add section-rich-all to round all four) so the section reads as a
+  sheet laid over the page background, the same way My Story does. Not an
+  overflow clip: that tears on high density screens around blurred children.
+*/
+.section-rich {
+  position: relative;
+  isolation: isolate;
+  /* Cards that slide off the side of the screen (the pain piles) must not
+     widen the page: desktop browsers shrug that off, but iPhone and iPad
+     Safari zoom out to fit it. Clip, not hidden: hidden would stop the
+     sticky cards inside sticking. */
+  overflow-x: clip;
+  background-color: oklch(0.42 0.2 var(--hue));
+  clip-path: inset(0 round var(--shell-radius) var(--shell-radius) 0 0);
+}
+
+.section-rich-all {
+  clip-path: inset(0 round var(--shell-radius));
+}
+
+.section-rich::before {
+  content: "";
+  position: sticky;
+  top: 0;
+  display: block;
+  height: 100vh;
+  height: 100lvh;
+  margin-bottom: -100vh;
+  margin-bottom: -100lvh;
+  z-index: -1;
+  pointer-events: none;
   background:
-    radial-gradient(46% 42% at 90% 4%, oklch(1 0 0 / 0.22), transparent 72%),
-    radial-gradient(44% 46% at 4% 98%, oklch(0.797 0.102 var(--hue) / 0.4), transparent 72%),
-    radial-gradient(60% 55% at 52% 44%, oklch(0.556 0.227 var(--hue) / 0.5), transparent 78%),
-    linear-gradient(
-      162deg,
-      oklch(0.355 0.177 var(--hue)) 0%,
-      oklch(0.463 0.22 var(--hue)) 46%,
-      oklch(0.332 0.16 var(--hue)) 100%
-    );
+    repeating-linear-gradient(
+      90deg,
+      oklch(1 0 0 / 0.04) 0,
+      oklch(1 0 0 / 0.04) 1px,
+      transparent 1px,
+      transparent clamp(64px, 8vw, 128px)
+    ),
+    var(--rich-core);
 }
 
 .site-bg::after {
@@ -369,10 +435,89 @@ html[data-bg="rich"] .site-bg {
   section heading and its button can sit on screen together on a laptop.
 */
 .type-story {
-  --fs-big: clamp(1.25rem, 1.75vw, 1.625rem);
-  --fs-text: clamp(0.9375rem, 1vw, 1.0625rem);
+  --fs-big: clamp(1.375rem, 1.75vw, 1.625rem);
+  --fs-text: clamp(1rem, 1vw, 1.0625rem);
   --fs-fit: clamp(0.8125rem, min(0.95vw, 2vh), 1rem);
   --fs-mega: clamp(1.75rem, 3.8vw, 3.375rem);
+}
+
+/*
+  type-card: the pain-point cards. Square-ish white cards, so the quote sits
+  at a size that wraps comfortably in about 30rem and still fits the longest.
+*/
+.type-card {
+  --fs-big: clamp(1.25rem, min(1.9vw, 3.5vh), 1.75rem);
+  --fs-text: clamp(0.9375rem, min(1.05vw, 2vh), 1.0625rem);
+}
+
+/*
+  type-panels: the two-sided comparison panels (Purchased and Sold, and Is
+  Dental Coaching For Me?). Compact, about 1180px wide and never taller than the
+  screen, so it reads whole on a 15 inch laptop; the pinned layout shrinks the
+  text further (--fit-scale) on a short screen. Set here, not inherited, so both comparisons are
+  exactly the same size whichever page scale they sit in.
+*/
+.type-panels {
+  --fs-big: calc(clamp(1.375rem, min(2vw, 3.6vh), 2.1rem) * var(--fit-scale, 1));
+  --fs-text: calc(clamp(0.9375rem, min(1.02vw, 1.95vh), 1.2rem) * var(--fit-scale, 1));
+}
+
+/*
+  type-hero: the hero. Big and loud: the name is the mega size and the two
+  lines under it the big size, both tied to the viewport height as well as the
+  width so the lot sits on one screen on a laptop.
+*/
+.type-hero {
+  --fs-mega: clamp(3.5rem, min(7.6vw, 14.5vh), 8.5rem);
+  --fs-big: clamp(1.75rem, min(2.9vw, 5.2vh), 3.4rem);
+  --fs-text: clamp(1rem, min(1.25vw, 2.3vh), 1.3rem);
+}
+
+/*
+  type-finale: the big Frustration card that ends the pain points. Large on a
+  laptop or desktop (tied to the height as well), and sized from the width on a
+  phone or an iPad held upright, where the card is wide and short of text.
+*/
+.type-finale {
+  --fs-big: clamp(2rem, min(3.5vw, 6.2vh), 3.5rem);
+  --fs-text: clamp(1rem, min(1.2vw, 2.2vh), 1.25rem);
+}
+
+@media (max-width: 1023px) {
+  .type-finale {
+    --fs-big: clamp(1.75rem, 6.2vw, 3rem);
+  }
+}
+
+/*
+  type-freedom: Freedom as one card across the top half of the stage. The
+  writing is sized from the width and the height, and --ff-scale is set by the
+  orbit's fitting loop if a short screen needs less.
+*/
+.type-freedom {
+  --fs-mega: calc(clamp(2.5rem, min(5.4vw, 10vh), 6.25rem) * var(--ff-scale, 1));
+  --fs-big: calc(clamp(1.2rem, min(2.1vw, 3.9vh), 2.4rem) * var(--ff-scale, 1));
+  --fs-fit: calc(clamp(0.9rem, min(1.3vw, 2.4vh), 1.3rem) * var(--ff-scale, 1));
+}
+
+/*
+  type-ready: the closing "Ready to take back control" section. A huge heading
+  and a big line, from the width and height. On the stage (type-ready-stage) the
+  heading is the bottom right and the line a bar along the bottom, so it is
+  smaller, and --rd-scale (set on the stage by the orbit's fitting loop) takes it
+  down further if a short screen needs less. Keep the query in
+  sync with the `orbit` variant.
+*/
+.type-ready {
+  --fs-mega: clamp(2.5rem, min(7.2vw, 13.5vh), 7.5rem);
+  --fs-text: clamp(1.125rem, min(1.8vw, 3.2vh), 1.65rem);
+}
+
+@media (min-width: 1024px) and (min-height: 540px) and (min-aspect-ratio: 11/10) {
+  .type-ready-stage {
+    --fs-mega: calc(clamp(1.75rem, min(3.9vw, 7.6vh), 4.9rem) * var(--rd-scale, 1));
+    --fs-text: calc(clamp(0.95rem, min(1.3vw, 2.5vh), 1.45rem) * var(--rd-scale, 1));
+  }
 }
 
 .type-box {
@@ -383,6 +528,40 @@ html[data-bg="rich"] .site-bg {
   --fs-big: clamp(1.5rem, min(2.7vw, 4.9vh), 2.5rem);
   --fs-text: clamp(0.9375rem, min(1.05vw, 1.95vh), 1.125rem);
   --fs-fit: clamp(0.8125rem, min(0.92vw, 1.75vh), 1rem);
+}
+
+/*
+  type-orbit: the How We Can Help cards. A card is a title and a handful of
+  lines of body copy, so both sizes sit between the story scale and the
+  normal one. --fit-scale is set by the orbit's fitting loop (1 when there is
+  room), and shrinks the body copy only as far as it has to for every card to
+  hold its words.
+*/
+.type-orbit {
+  --fs-big: clamp(1.25rem, min(1.7vw, 3vh), 1.625rem);
+  --fit-base: clamp(0.8125rem, min(1.02vw, 2.15vh), 1.0625rem);
+  --fs-fit: calc(var(--fit-base) * var(--fit-scale, 1));
+}
+
+/* The same cards as a swipe carousel (phones, iPads in portrait): one card at a
+   time on a touch screen, so the writing is sized from the width, and can be
+   comfortably large. Keep the query in sync with the `carousel` variant. */
+@media not all and (min-width: 1024px) and (min-height: 540px) and (min-aspect-ratio: 11/10) {
+  .type-orbit {
+    --fs-big: clamp(1.375rem, 4.4vw, 1.75rem);
+    --fit-base: clamp(0.9375rem, 2.6vw, 1.125rem);
+  }
+}
+
+/*
+  type-large: the How We Work page. The same two sizes, one notch up, since
+  that page is all reading and has room for it.
+*/
+.type-large {
+  --fs-mega: clamp(2.75rem, 5.2vw, 4.75rem);
+  --fs-big: clamp(1.75rem, 3vw, 2.75rem);
+  --fs-text: clamp(1.125rem, 1.6vw, 1.5625rem);
+  --fs-fit: clamp(0.9375rem, min(1.3vw, 2.6vh), 1.375rem);
 }
 
 /* Highlight text for the big moments: white easing into pale colour. */
@@ -410,10 +589,27 @@ html[data-bg="rich"] .site-bg {
   padding-top: var(--header-h);
 }
 
-/* Feel Familiar's pinned scatter needs room to lay twelve readable cards out
-   without overlap, so it only pins on screens at least this big. Anything
-   smaller gets the plain flow layout. */
-@custom-variant stagey (@media (min-width: 1200px) and (min-height: 700px));
+/* The How We Can Help orbit needs room for large cards round a photo, so it only
+   runs on wide, landscape screens (a laptop, a desktop, an iPad in landscape).
+   Everything else (phones, an iPad in portrait) gets the swipe carousel, which
+   is exactly the screens the orbit is not. Keep both in sync with ORBIT_QUERY
+   in HowWeCanHelp. */
+/* The comparison panels hold the page while they play, but only on a screen
+   tall enough to show them whole and readable (otherwise they just fill as they
+   scroll past). Keep it in sync with the matchMedia strings in TwinPanels. */
+@custom-variant pin (@media (min-width: 1024px) and (min-height: 760px));
+@custom-variant orbit (@media (min-width: 1024px) and (min-height: 540px) and (min-aspect-ratio: 11/10));
+@custom-variant carousel (@media not all and (min-width: 1024px) and (min-height: 540px) and (min-aspect-ratio: 11/10));
+
+/* iOS Safari zooms the page in when a field under 16px is focused. On a touch
+   screen every field is at least 16px, whatever scale its section uses. */
+@media (pointer: coarse) {
+  input,
+  textarea,
+  select {
+    font-size: max(16px, 1em) !important;
+  }
+}
 
 @media (prefers-reduced-motion: reduce) {
   *,

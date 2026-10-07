@@ -1,9 +1,10 @@
 /**
- * Copy for the How We Work page: the phase timeline, the "Is Dental
- * Coaching For Me?" table and the next steps.
+ * Copy for the How We Work page: the FAQ headings, the phase timeline, the
+ * "Is Dental Coaching For Me?" table and the next steps. The wording is the
+ * copy doc, verbatim apart from clear typos.
  *
- * No pricing or fee figures appear anywhere on this page by design. The
- * price is handled on the call.
+ * The Next Steps now carry the price, as the updated copy has it: £1500 a
+ * month and the £995 practice visit, both inclusive of VAT.
  */
 export type Phase = {
   numeral: string;
@@ -83,6 +84,14 @@ export const phases: Phase[] = [
   },
 ];
 
+/** The three questions the page answers, in the doc's order. */
+export const faqLead = "Three FAQ’s:";
+export const faqQuestions = {
+  how: "How will it work if I join Dental Growth Lab, and how long will it take to get my practice running profitably and efficiently?",
+  fit: "Is dental coaching for me?",
+  next: "I am interested, what are the next steps, and how much does it cost?",
+};
+
 export const fitIntro = {
   heading: "Is Dental Coaching For Me?",
   willWork: "Our coaching will work for you if",
@@ -113,7 +122,7 @@ export type Step = {
   points: string[];
 };
 
-export const stepsHeading = "How to Start Working with Dental Growth Lab, The Next Steps";
+export const stepsHeading = faqQuestions.next;
 
 export const steps: Step[] = [
   {
@@ -143,10 +152,12 @@ export const steps: Step[] = [
     ],
   },
   {
-    title: "Contract",
+    title: "Contract + payment",
     points: [
       "If you wish to proceed, we send out a service level agreement to yourself which are the coaching agreement/terms between yourself and us.",
-      "Once signed, we can begin!",
+      "The cost per month is £1500, this includes VAT.",
+      "The agreement can be cancelled at the end of any Quarterly Progress Review. 3 month notice period.",
+      "Once signed, you make the first payment and we begin!",
     ],
   },
   {
@@ -161,8 +172,9 @@ export const steps: Step[] = [
   {
     title: "Alignment and Practice Visit",
     points: [
-      "We come to your practice to spend a whole day with you and your staff to help understand how your practice works and the dynamics. This may also stretch over two days if necessary.",
+      "We come to your practice to spend a whole day with you and your staff to help understand how your practice works and the dynamics.",
       "In this same visit we will have a separate meeting with the owner only to establish the ultimate vision and goals.",
+      "This may stretch over two days if necessary. There is a one off fee for Alignment + Practice Visit of £995 inclusive of VAT (it’s the same price if it’s a two day visit).",
     ],
   },
   {
@@ -178,19 +190,20 @@ export const steps: Step[] = [
     title: "Ongoing coaching",
     points: [
       "Regular sessions either fortnightly or weekly depending on what pace you want to progress at or have the time/capacity for.",
-      "If you are able to, reserve one day per fortnight for dental coaching. “Working on the business not in the business.”",
-      "If you are not able to dedicate a day, then it will be approximately 2 hours per session.",
+      "If you are able to, reserve one day per fortnight for dental coaching. “Working on the business not in the business”",
+      "If you are not able to dedicate a day, it will be approximately 2 hours per session.",
       "Between-session exercises/check-ins where appropriate.",
     ],
   },
   {
-    title: "Quarterly Progress review",
+    title: "Quarterly Progress Review",
     points: [
       "Formal review every quarter.",
-      "This is in addition to your fortnightly/weekly meeting and it is included as part of your coaching.",
+      "This is in addition to your fortnightly/weekly meeting and it is included as part of the monthly fee.",
       "We chart and analyse the key metrics compared to previous quarters and the baseline, to check progress and adjust goals.",
       "What’s working/not working for you?",
       "Continue and modify.",
+      "Or end agreement and give notice.",
     ],
   },
 ];

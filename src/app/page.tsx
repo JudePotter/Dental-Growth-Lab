@@ -3,26 +3,23 @@ import Reframe from "@/components/Reframe";
 import FeelFamiliar from "@/components/FeelFamiliar";
 import MyStory from "@/components/MyStory";
 import HowWeCanHelp from "@/components/HowWeCanHelp";
-import WorkTeaser from "@/components/WorkTeaser";
-import Testimonials from "@/components/Testimonials";
-import ContactSection from "@/components/ContactSection";
+import PageTiles from "@/components/PageTiles";
 import { findPublicImage } from "@/lib/images";
+import { tileAvatars } from "@/lib/testimonials";
 
 export default function Home() {
   return (
     <>
       <main>
-        <Hero />
+        <Hero photoSrc={findPublicImage("office-consultation")} />
         <Reframe />
         <FeelFamiliar />
         <MyStory
           founderSrc={findPublicImage("pujan")}
           practiceSrc={findPublicImage("practice")}
         />
-        <HowWeCanHelp />
-        <WorkTeaser />
-        <Testimonials />
-        <ContactSection />
+        <HowWeCanHelp photoSrc={findPublicImage("practice")} />
+        <PageTiles avatars={tileAvatars()} />
       </main>
     </>
   );

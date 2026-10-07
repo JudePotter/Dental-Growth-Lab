@@ -47,7 +47,7 @@ export default function PhotoSlot({
           alt={alt}
           fill
           sizes={sizes}
-          priority={priority}
+          preload={priority}
           {...(early ? { loading: "eager" as const, fetchPriority: "low" as const } : {})}
           className="object-cover"
           style={objectPosition ? { objectPosition } : undefined}

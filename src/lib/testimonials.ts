@@ -1,6 +1,9 @@
+import { findPublicImage } from "@/lib/images";
+
 /**
  * Testimonials, three-up. The words, names and titles are from
- * `Testimonials/Testimonials.docx`, in the same order. Only clear typos are
+ * `Testimonials/Testimonials.docx`. They are shown left to right as Mohit,
+ * Jasdeep, Mital (see `testimonials` at the bottom). Only clear typos are
  * fixed ("Denta" to "Dental", "Univerity" to "University", "NHS trust" to
  * "NHS Trust", a missing full stop).
  *
@@ -25,7 +28,7 @@ export type Testimonial = {
   quote: string[];
 };
 
-export const testimonials: Testimonial[] = [
+const fromDoc: Testimonial[] = [
   {
     imageName: "testimonial-1",
     imagePosition: "50% 12%",
@@ -79,3 +82,20 @@ export const testimonials: Testimonial[] = [
     ],
   },
 ];
+
+/** Shown left to right: Mohit, Jasdeep, Mital. */
+const DISPLAY_ORDER = ["testimonial-3", "testimonial-1", "testimonial-2"];
+
+export const testimonials: Testimonial[] = DISPLAY_ORDER.map((name) => {
+  const found = fromDoc.find((t) => t.imageName === name);
+  if (!found) throw new Error(`No testimonial with image name ${name}`);
+  return found;
+});
+
+/** The photos and first names for the Testimonials jump tile. Server only. */
+export function tileAvatars() {
+  return testimonials.map((t) => ({
+    src: findPublicImage(t.imageName),
+    name: t.name.replace(/^Dr /, "").replace(/ Gangotra$/, "").replace(/ Patel$/, ""),
+  }));
+}

@@ -6,17 +6,15 @@ import { usePathname } from "next/navigation";
 import { motion, useMotionValueEvent, useScroll } from "framer-motion";
 import { LogoMark, Wordmark } from "./Logo";
 import BookCallButton from "./BookCallButton";
-import BackgroundToggle from "./BackgroundToggle";
 import { NAV_LINKS } from "@/lib/nav";
 
 /**
  * Fixed, always-on header. Over the coloured background it is transparent;
  * once the page scrolls it becomes a deep frosted pill, which reads cleanly
  * over both the coloured background and the pastel white My Story sheet.
- * Six links need the room of a laptop, so below 1024px it is the menu button.
- * The background style switch sits beside the Book a Call button, and in the
- * menu on smaller screens. Between 1024px and 1200px the wordmark text gives
- * way to the logo mark alone, to make the room.
+ * Seven links need the room of a laptop, so below 1024px it is the menu button.
+ * Between 1024px and 1100px the wordmark text gives way to the logo mark
+ * alone, to make the room for the seven links.
  */
 export default function Header() {
   const [scrolled, setScrolled] = useState(false);
@@ -47,7 +45,7 @@ export default function Header() {
             aria-label="Dental Growth Lab, home"
           >
             <LogoMark className="h-7 w-7 text-white" />
-            <Wordmark className="hidden text-[1.05rem] min-[1200px]:inline" />
+            <Wordmark className="hidden text-[1.05rem] min-[1100px]:inline" />
           </Link>
 
           <nav
@@ -63,7 +61,7 @@ export default function Header() {
                   href={link.href}
                   onMouseEnter={() => setHovered(link.href)}
                   aria-current={current ? "page" : undefined}
-                  className={`t-nav relative whitespace-nowrap rounded-full px-2.5 py-2 outline-offset-0 xl:px-3.5 transition-colors duration-200 hover:text-white ${
+                  className={`t-nav relative whitespace-nowrap rounded-full px-1.5 py-2 outline-offset-0 min-[1120px]:px-2.5 xl:px-3.5 transition-colors duration-200 hover:text-white ${
                     current ? "text-white" : "text-white/75"
                   }`}
                 >
@@ -81,14 +79,11 @@ export default function Header() {
           </nav>
 
           <div className="flex items-center gap-2">
-            <span className="hidden lg:inline-flex">
-              <BackgroundToggle />
-            </span>
             <span className="hidden sm:inline-flex">
               <BookCallButton />
             </span>
             <span className="sm:hidden">
-              <BookCallButton className="px-4 py-2.5 text-xs" label="Book" />
+              <BookCallButton className="px-5 py-3" label="Book" />
             </span>
             <button
               type="button"
@@ -96,7 +91,7 @@ export default function Header() {
               aria-expanded={menuOpen}
               aria-controls="mobile-nav"
               aria-label={menuOpen ? "Close menu" : "Open menu"}
-              className="ml-1 flex h-9 w-9 flex-col items-center justify-center gap-1.5 lg:hidden"
+              className="ml-1 flex h-11 w-11 flex-col items-center justify-center gap-1.5 lg:hidden"
             >
               <motion.span
                 animate={{ rotate: menuOpen ? 45 : 0, y: menuOpen ? 4 : 0 }}
@@ -128,15 +123,11 @@ export default function Header() {
                 key={link.href}
                 href={link.href}
                 onClick={() => setMenuOpen(false)}
-                className="t-lead rounded-xl px-2 py-2 text-white/85 transition-colors duration-200 hover:bg-white/10 hover:text-white"
+                className="t-lead rounded-xl px-2 py-3 text-white/85 transition-colors duration-200 hover:bg-white/10 hover:text-white active:bg-white/10"
               >
                 {link.label}
               </Link>
             ))}
-            <div className="mt-2 flex items-center justify-between border-t border-white/12 px-2 pt-4">
-              <span className="t-lead text-white/85">Background</span>
-              <BackgroundToggle variant="block" />
-            </div>
           </div>
         </motion.nav>
       </div>

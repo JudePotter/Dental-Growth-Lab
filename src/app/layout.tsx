@@ -5,7 +5,6 @@ import "./globals.css";
 import SmoothScroll from "@/components/SmoothScroll";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { bgBootScript, DEFAULT_BG } from "@/lib/background";
 
 const bricolage = Bricolage_Grotesque({
   variable: "--font-bricolage",
@@ -30,13 +29,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     <html
       lang="en"
       className={`${bricolage.variable} ${manrope.variable} h-full antialiased`}
-      data-bg={DEFAULT_BG}
-      suppressHydrationWarning
     >
-      <head>
-        {/* Applies a remembered background style before first paint. */}
-        <script dangerouslySetInnerHTML={{ __html: bgBootScript() }} />
-      </head>
       <body className="min-h-full text-white">
         <SmoothScroll />
         <Header />

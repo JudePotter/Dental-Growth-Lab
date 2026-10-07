@@ -3,9 +3,10 @@ import BookCallButton from "./BookCallButton";
 import { Reveal } from "./Reveal";
 
 /**
- * "How to Start Working with Dental Growth Lab, The Next Steps". Ten steps
- * from first enquiry to the quarterly review. No pricing appears here: the
- * price is handled on the call.
+ * "I am interested, what are the next steps, and how much does it cost?" Ten
+ * steps from first enquiry to the quarterly review. The updated copy puts the
+ * price in the Contract + payment and Alignment and Practice Visit steps, so
+ * the figures appear here and nowhere else on the site.
  */
 export default function NextSteps() {
   return (

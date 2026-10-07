@@ -17,7 +17,7 @@ const CONTACT_PHONE = process.env.NEXT_PUBLIC_CONTACT_PHONE ?? "020 7946 0958";
 
 const COLUMN_HEADING = "t-label text-ink-black/55";
 const COLUMN_LINK =
-  "t-small break-words text-ink-black transition-colors hover:text-royal-600";
+  "t-small -my-1 block break-words py-2.5 text-ink-black transition-colors hover:text-royal-600 lg:py-1";
 
 /**
  * The footer. It is fixed to the bottom of the screen, *behind* the page

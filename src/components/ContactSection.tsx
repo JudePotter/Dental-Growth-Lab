@@ -22,17 +22,27 @@ const noopSubscribe = () => () => {};
 const FIELD =
   "t-text mt-1 w-full rounded-xl border border-sheet-line bg-sheet px-3.5 py-2.5 text-ink placeholder:text-ink-soft/60 transition-colors focus:border-royal-500 focus:outline-none focus:ring-2 focus:ring-royal-500/25";
 
-export default function ContactSection() {
+const DEFAULT_LEAD =
+  "Contact us and the founder will call you at a time convenient to you, so you can take the first step to building your profitable practice that works for you, without you.";
+
+/**
+ * The booking section. Its heading and lead-in can be swapped for a closing
+ * passage (the How We Work page ends on "Ready to take back control of your
+ * practice?"), with the same booking boxes under it.
+ */
+export default function ContactSection({
+  heading = "Book a Call",
+  lead = DEFAULT_LEAD,
+}: {
+  heading?: string;
+  lead?: string;
+}) {
   return (
     <section id="contact" className="relative">
       <div className="mx-auto max-w-[1320px] px-6 pb-[clamp(5rem,12vh,8rem)] pt-[calc(var(--header-h)+clamp(2rem,7vh,5rem))] sm:px-10">
         <Reveal className="mx-auto max-w-[820px] text-center">
-          <h2 className="t-big text-white">Book a Call</h2>
-          <p className="t-text mt-5 text-white/85">
-            Contact us and the founder will call you at a time convenient to
-            you, so you can take the first step to building your profitable
-            practice that works for you, without you.
-          </p>
+          <h2 className="t-big text-balance text-white">{heading}</h2>
+          <p className="t-text mt-5 text-white/85">{lead}</p>
         </Reveal>
 
         {/* The two boxes run at 80% of their old size: a narrower row, a

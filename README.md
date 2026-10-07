@@ -13,8 +13,11 @@ These are inlined at build time, so re-run `npm run build` after changing them.
 **Photos**: drop files into `public/images/` and rebuild. They are picked up
 automatically, with no code changes:
 
-- `pujan.jpg` (founder) and `practice.jpg` (the practice) on My Story
-- `testimonial-1.jpg`, `testimonial-2.jpg`, `testimonial-3.jpg` on Testimonials
+- `office-consultation.jpg` (Pujan at his desk) in the hero
+- `pujan.jpg` (founder) and `practice.jpg` (Pujan in the practice) on My Story;
+  `practice.jpg` is also the photo fixed in the centre of How We Can Help
+- `testimonial-1.jpg` (Jasdeep), `testimonial-2.jpg` (Dr Patel),
+  `testimonial-3.jpg` (Mohit) on Testimonials, shown as Mohit, Jasdeep, Mital
 
 `.jpg`, `.jpeg`, `.png`, `.webp` and `.avif` all work.
 
@@ -22,16 +25,32 @@ automatically, with no code changes:
 change `--hue` (0 to 360) and the background, tiles, illustrations, table,
 buttons and footer all follow. 264 is the current blue.
 
+**Backgrounds**: the page background is Style 1 (bright blue). `--bg-lift` in
+`globals.css` is how light it is: raise it to lighten the whole site, but white
+text loses contrast as it goes up (measured median 4.2:1 at 0, 3.7:1 at 0.03).
+Two sections use Style 2 (the deeper royal blue) instead, the pain points ("Do
+any of these sound familiar?") and "Is Dental Coaching For Me?": add
+`section-rich` to a section to do the same. There is no switch in the header.
+
+**Pages**: the home page ends on three jump tiles to the Testimonials, How We
+Work and Book a Call pages (`/testimonials`, `/how-we-work`, `/book-a-call`).
+Every Book a Call button goes to `/book-a-call`.
+
 **Type rule**: content sections use two sizes and two weights at a time. Big
 (`t-big`, weight 600) for statements and section titles, text (`t-text`,
 weight 400) for everything else, and `t-fit` for the dense pinned stages. The
-hero, nav and footer keep their own scale.
+hero, nav and footer keep their own scale. A section can opt into a different
+scale with a wrapper class: `type-story` (My Story), `type-compact`,
+`type-orbit` (the How We Can Help cards) and `type-large` (the How We Work page).
 
 **Footer**: the footer is fixed behind the page and revealed when the page
 lifts away at the very end (`.page-shell` and `.site-footer` in `globals.css`).
 
 **Copy** lives in `src/lib/` (`familiar.ts`, `story.ts`, `pillars.ts`,
-`howWeWork.ts`, `testimonials.ts`). No pricing appears anywhere on the site.
+`howWeWork.ts`, `testimonials.ts`). Text in `**double asterisks**` is
+highlighted in the copy doc and renders bold. The only prices on the site are
+in the Next Steps on the How We Work page (the monthly fee and the practice
+visit fee), as the updated copy has them.
 
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 

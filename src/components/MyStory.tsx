@@ -1,14 +1,16 @@
 "use client";
 
 import { purchased, sold, storyClosing, storyIntro, storyRows } from "@/lib/story";
-import BookCallButton from "./BookCallButton";
 import PhotoSlot from "./PhotoSlot";
+import Rich from "./Rich";
 import { Reveal, ScrollLine } from "./Reveal";
-import SpineStage from "./SpineStage";
+import TwinPanels from "./TwinPanels";
 
 /**
  * My Story. The one pastel white section on the site: a sheet that rolls up
- * over the fixed blue background and lets it back in at the bottom.
+ * over the page. It overlaps the bottom of the Style 2 section above it by
+ * the corner radius, so its rounded top corners show that blue, not the page
+ * background. It lets the fixed blue background back in at the bottom.
  */
 export default function MyStory({
   founderSrc,
@@ -20,14 +22,19 @@ export default function MyStory({
   return (
     <section
       id="my-story"
-      className="on-sheet type-story relative rounded-[clamp(1.5rem,3.2vw,2.75rem)] bg-sheet text-ink shadow-[0_-30px_90px_-40px_var(--shadow)]"
+      className="on-sheet type-story relative -mt-[var(--shell-radius)] rounded-[clamp(1.5rem,3.2vw,2.75rem)] bg-sheet text-ink shadow-[0_-30px_90px_-40px_var(--shadow)]"
     >
       <Intro founderSrc={founderSrc} practiceSrc={practiceSrc} />
-      <SpineStage
+      <TwinPanels
         ariaLabel={`${purchased.title} ${purchased.date} compared with ${sold.title} ${sold.date}`}
         leftHead={{ title: purchased.title, meta: purchased.date }}
         rightHead={{ title: sold.title, meta: sold.date }}
         rows={storyRows}
+        leftMark="dash"
+        rightMark="x"
+        bright="right"
+        tone="light"
+        className="py-[clamp(1rem,4vh,2.5rem)]"
       />
       <Closing />
     </section>
@@ -57,17 +64,13 @@ function Intro({
             {storyIntro.beats.map((beat, i) => (
               <ScrollLine key={beat}>
                 <p
-                  className={`flex items-center gap-4 ${
+                  className={`t-big text-balance ${
                     i === storyIntro.beats.length - 1
-                      ? "t-big text-royal-gradient"
-                      : "t-big text-ink"
+                      ? "text-royal-gradient"
+                      : "text-ink"
                   }`}
                 >
-                  <span
-                    aria-hidden="true"
-                    className="h-2.5 w-2.5 shrink-0 rounded-full bg-royal-500"
-                  />
-                  {beat}
+                  <Rich text={beat} />
                 </p>
               </ScrollLine>
             ))}
@@ -77,19 +80,15 @@ function Intro({
             <p className="t-text max-w-[54ch] text-ink-soft">{storyIntro.result}</p>
           </ScrollLine>
 
-          {storyIntro.outcome.map((line, i) => (
-            <ScrollLine key={line}>
-              <p
-                className={
-                  i < 2
-                    ? "t-big text-balance text-ink"
-                    : "t-text max-w-[54ch] text-ink-soft"
-                }
-              >
-                {line}
-              </p>
-            </ScrollLine>
-          ))}
+          <ScrollLine>
+            <p className="t-text max-w-[54ch] text-ink-soft">
+              <Rich text={storyIntro.retired} />
+            </p>
+          </ScrollLine>
+
+          <ScrollLine>
+            <p className="t-big text-balance text-ink">{storyIntro.outcome}</p>
+          </ScrollLine>
         </div>
       </div>
 
@@ -140,25 +139,23 @@ function Closing() {
           {storyClosing.beats.map((beat, i) => (
             <ScrollLine key={beat}>
               <p className={`t-big text-balance ${i === 0 ? "text-ink" : "text-ink-soft"}`}>
-                {beat}
+                <Rich text={beat} />
               </p>
             </ScrollLine>
           ))}
         </div>
 
         <ScrollLine>
-          <p className="t-big text-balance text-ink">{storyClosing.learned}</p>
+          <p className="t-big text-balance text-ink">
+            <Rich text={storyClosing.learned} />
+          </p>
         </ScrollLine>
 
         <div className="flex flex-col gap-[clamp(0.6rem,1.6vh,1rem)]">
           {storyClosing.actions.map((line) => (
             <ScrollLine key={line}>
-              <p className="t-big flex items-center gap-4 text-ink">
-                <span
-                  aria-hidden="true"
-                  className="h-2.5 w-2.5 shrink-0 rounded-full bg-royal-500"
-                />
-                {line}
+              <p className="t-big text-ink">
+                <Rich text={line} />
               </p>
             </ScrollLine>
           ))}
@@ -169,16 +166,10 @@ function Closing() {
         </ScrollLine>
 
         <ScrollLine>
-          <p className="t-text max-w-[58ch] text-ink-soft">{storyClosing.sold}</p>
+          <p className="t-text max-w-[58ch] text-ink-soft">
+            <Rich text={storyClosing.sold} />
+          </p>
         </ScrollLine>
-
-        <ScrollLine>
-          <p className="t-text max-w-[58ch] text-ink">{storyClosing.cta}</p>
-        </ScrollLine>
-
-        <Reveal>
-          <BookCallButton variant="solid" size="lg" />
-        </Reveal>
       </div>
     </div>
   );

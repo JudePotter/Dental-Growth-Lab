@@ -11,9 +11,10 @@ import { Reveal, ScrollLine } from "./Reveal";
 gsap.registerPlugin(ScrollTrigger);
 
 /**
- * The reframe. First the two-line contrast ("is good" then "is better", the
- * same size, no strikethrough), then the reframe copy, revealed line by
- * line as it rolls up over the fixed background.
+ * The reframe. First the contrast ("is good", "But...", "is better", all the
+ * same size, no strikethrough), then the reframe copy, revealed line by line
+ * as it rolls up over the fixed background. The Book a Call button sits
+ * directly under the "that don’t depend on them" line.
  */
 export default function Reframe() {
   return (
@@ -28,13 +29,14 @@ function ContrastStage() {
   const reduced = useReducedMotion();
   const outerRef = useRef<HTMLDivElement>(null);
   const goodRef = useRef<HTMLParagraphElement>(null);
+  const butRef = useRef<HTMLParagraphElement>(null);
   const betterRef = useRef<HTMLParagraphElement>(null);
   const markRef = useRef<HTMLSpanElement>(null);
 
   useLayoutEffect(() => {
     if (reduced) return;
     const ctx = gsap.context(() => {
-      gsap.set([goodRef.current, betterRef.current], { autoAlpha: 0, y: 44 });
+      gsap.set([goodRef.current, butRef.current, betterRef.current], { autoAlpha: 0, y: 44 });
       gsap.set(markRef.current, { scaleX: 0 });
 
       const tl = gsap.timeline({
@@ -48,8 +50,10 @@ function ContrastStage() {
       });
 
       tl.to(goodRef.current, { autoAlpha: 1, y: 0, duration: 1 })
-        .to({}, { duration: 1.1 })
-        .to(goodRef.current, { autoAlpha: 0.34, duration: 0.7 })
+        .to({}, { duration: 0.9 })
+        .to(butRef.current, { autoAlpha: 1, y: 0, duration: 0.8 })
+        .to({}, { duration: 0.8 })
+        .to([goodRef.current, butRef.current], { autoAlpha: 0.34, duration: 0.7 })
         .to(betterRef.current, { autoAlpha: 1, y: 0, duration: 1.1 }, "<0.15")
         .to(markRef.current, { scaleX: 1, duration: 0.7, ease: "power2.inOut" }, ">-0.2")
         .to({}, { duration: 1.3 });
@@ -70,24 +74,29 @@ function ContrastStage() {
           reduced ? "py-24" : "stage sticky top-0 pb-6"
         }`}
       >
-        <p
-          ref={goodRef}
-          className={`t-statement text-balance text-white ${hidden}`}
-        >
-          £900,000 to £1.2 million turnover is good. But... at £1.2 million the
-          owner is working harder, more clinical hours, more stressed, and the
-          bottom line is still the same as it was before.
-        </p>
+        <div className="flex flex-col gap-[clamp(0.75rem,2.4vh,1.5rem)]">
+          <p
+            ref={goodRef}
+            className={`t-statement text-balance text-white ${hidden}`}
+          >
+            £900,000 to £1.2 million turnover{" "}
+            <strong className="text-glow">is good.</strong>
+          </p>
+
+          <p ref={butRef} className={`t-statement text-white ${hidden}`}>
+            But…
+          </p>
+        </div>
 
         <p
           ref={betterRef}
           className={`t-statement text-balance text-white ${hidden}`}
         >
           £900,000 to £1.2 million while the owner goes from five clinical days
-          a week to two, has evenings and weekends free, the practice runs
-          without them, and they go on holiday three times a year...{" "}
+          a week to two, has evenings and weekends free, the practice can run
+          without them, and they go on holiday three times a year…
           <span className="relative inline-block text-glow">
-            is better.
+            <strong>is better.</strong>
             <span
               ref={markRef}
               aria-hidden="true"
@@ -114,8 +123,9 @@ function ReframeCopy() {
         </ScrollLine>
 
         <ScrollLine>
-          <h2 className="t-big text-glow text-balance">
-            They have a business problem.
+          <h2 className="t-big text-balance text-white">
+            They have{" "}
+            <strong className="text-glow">a business problem.</strong>
           </h2>
         </ScrollLine>
 
@@ -123,8 +133,8 @@ function ReframeCopy() {
           <p className="t-text max-w-[66ch] text-white/85">
             No one was taught how to run a practice at dental school. A poorly
             performing workforce, lack of leadership and direction, ineffective
-            systems, and you end up feeling overwhelmed, burnt out, and working
-            to subsidise your practice.
+            systems, leads to you feeling overwhelmed, burnt out, and on top of
+            that you end up working harder just to subsidise your practice.
           </p>
         </ScrollLine>
 
@@ -136,11 +146,8 @@ function ReframeCopy() {
 
         <ScrollLine>
           <p className="t-text max-w-[66ch] text-white/85">
-            We help dental practice owners like yourself build accountable
-            teams, effective systems and profitable businesses that don’t
-            depend on you. We help take you from owner dependent to owner
-            independent, by building a practice that works for you, without
-            you.
+            We help dental practice owners build accountable teams, effective
+            systems and profitable businesses, that don’t depend on them.
           </p>
         </ScrollLine>
 
