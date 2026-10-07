@@ -28,9 +28,9 @@ const LABELS = painQuotes.map((q, i) => `${q.tag}, ${i + 1} of ${painQuotes.leng
  * strings, since Tailwind only generates classes it can read whole.
  */
 const CARD =
-  "w-full rounded-[clamp(1.25rem,2.2vw,2rem)] bg-white text-ink-black shadow-[0_24px_60px_-28px_oklch(0.14_0.09_264/0.8)]";
+  "w-full rounded-[clamp(1.25rem,2.2vw,2rem)] bg-white text-ink-black shadow-[0_24px_60px_-28px_oklch(0.14_0.09_264/0.8)] max-md:shadow-[0_10px_22px_-12px_oklch(0.14_0.09_264/0.75)]";
 const CARD_LAST =
-  "mx-auto w-full max-w-[46rem] rounded-[clamp(1.5rem,2.6vw,2.5rem)] bg-white text-ink-black shadow-[0_34px_90px_-30px_oklch(0.12_0.09_264/0.9)]";
+  "mx-auto w-full max-w-[46rem] rounded-[clamp(1.5rem,2.6vw,2.5rem)] bg-white text-ink-black shadow-[0_34px_90px_-30px_oklch(0.12_0.09_264/0.9)] max-md:shadow-[0_12px_26px_-14px_oklch(0.12_0.09_264/0.8)]";
 
 /**
  * "Do any of these sound familiar?..." into "Dental Growth Lab can fix this."

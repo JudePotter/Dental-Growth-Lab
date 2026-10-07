@@ -190,37 +190,60 @@ export default function CardStack({
       const lift = exit * exit * (3 - 2 * exit);
 
       // A card's depth is the sum of the arrivals of every card landing on
-      // its pile above it.
+      // its pile above it. A card more than PEEKS deep is completely covered,
+      // so it is not drawn at all: that keeps the number of live layers small,
+      // which is what keeps this smooth on a phone.
       const depthByPile = [0, 0];
       for (let i = last; i >= 0; i--) {
         const pile = cols === 1 ? 0 : i % 2;
-        const d = i === last ? 0 : Math.min(depthByPile[pile], PEEKS);
-        const dx = i === last ? 0 : pile === 0 ? -slide : slide;
+        const raw = i === last ? 0 : depthByPile[pile];
+        const d = Math.min(raw, PEEKS);
+        // With a single pile (a phone) the finale is as wide as the pile and
+        // covers it, so nothing needs to slide sideways, and nothing may,
+        // because anything sliding off the side widens the page on a phone.
+        const dx = i === last || cols === 1 ? 0 : pile === 0 ? -slide : slide;
         const up = d * PEEK_PX + (i === last ? lift * (stackTopLast + lastH) * EXIT_LIFT : 0);
-        list[i].style.transform =
+        const transform =
           up > 0 || d > 0 || dx !== 0
-            ? `translate(${dx}px, ${-up}px) rotate(${(dx / (window.innerWidth * LEAVE_TRAVEL || 1)) * LEAVE_TILT}deg) scale(${1 - PEEK_SCALE * d})`
+            ? `translate3d(${dx.toFixed(1)}px, ${(-up).toFixed(1)}px, 0) rotate(${((dx / (window.innerWidth * LEAVE_TRAVEL || 1)) * LEAVE_TILT).toFixed(2)}deg) scale(${(1 - PEEK_SCALE * d).toFixed(4)})`
             : "";
-        // Once a pile is off the screen it is hidden outright.
-        list[i].style.opacity = i !== last && leave >= 1 ? "0" : "";
+        const covered = i !== last && (leave >= 1 || raw > PEEKS + 0.02);
+        const el = list[i];
+        // Only touch the style when the value has changed.
+        if (el.dataset.t !== transform) {
+          el.dataset.t = transform;
+          el.style.transform = transform;
+        }
+        const vis = covered ? "hidden" : "";
+        if (el.dataset.v !== vis) {
+          el.dataset.v = vis;
+          el.style.visibility = vis;
+        }
         const shade = shadeRefs.current[i];
-        if (shade) shade.style.opacity = String(d * PEEK_SHADE);
+        if (shade) {
+          const o = (d * PEEK_SHADE).toFixed(3);
+          if (shade.dataset.o !== o) {
+            shade.dataset.o = o;
+            shade.style.opacity = o;
+          }
+        }
         if (i !== last) depthByPile[pile] += arrival[i];
       }
     };
 
-    // The depth effect is driven from ScrollTrigger, not from the browser's
-    // scroll event. The smooth scroll engine moves the page and updates
-    // ScrollTrigger in the same tick, so the transforms land in the same frame
-    // as the sticky positions they are measured against. A scroll event would
-    // arrive a frame later, and the cards' depth would trail the page.
+    // On a phone the page is scrolled natively (the compositor moves it, and
+    // the sticky cards with it), so the depth effect follows the scroll event
+    // on the next frame: the quickest a script can follow, and the same on
+    // every touch screen. On a laptop or desktop the smooth scroll engine
+    // moves the page and updates ScrollTrigger in the same tick, so the effect
+    // is driven from there and lands in the same frame as the page.
+    const touch = window.matchMedia("(pointer: coarse)").matches;
     let lastW = window.innerWidth;
     // On a phone, Safari's toolbars sliding away change the height of the
     // screen as the visitor scrolls. That must not re-lay the stack out under
     // their thumb, so only a change of width (a rotation) counts.
     const onResize = () => {
-      const coarse = window.matchMedia("(pointer: coarse)").matches;
-      if (coarse && window.innerWidth === lastW) return;
+      if (touch && window.innerWidth === lastW) return;
       lastW = window.innerWidth;
       measure();
       update();
@@ -228,23 +251,36 @@ export default function CardStack({
 
     measure();
     update();
-    const trigger = reduced
-      ? null
-      : ScrollTrigger.create({
-          trigger: container,
-          start: "top bottom",
-          end: "bottom top",
-          onUpdate: update,
-          onRefresh: () => {
-            measure();
-            update();
-          },
+
+    let frame = 0;
+    const schedule = () => {
+      if (!frame)
+        frame = requestAnimationFrame(() => {
+          frame = 0;
+          update();
         });
+    };
+    const trigger =
+      reduced || touch
+        ? null
+        : ScrollTrigger.create({
+            trigger: container,
+            start: "top bottom",
+            end: "bottom top",
+            onUpdate: update,
+            onRefresh: () => {
+              measure();
+              update();
+            },
+          });
+    if (touch && !reduced) window.addEventListener("scroll", schedule, { passive: true });
     window.addEventListener("resize", onResize);
     document.fonts?.ready.then(onResize).catch(() => {});
 
     return () => {
       trigger?.kill();
+      if (frame) cancelAnimationFrame(frame);
+      window.removeEventListener("scroll", schedule);
       window.removeEventListener("resize", onResize);
     };
   }, [reduced, maxCardH, maxCardHSmall, count, lastGrow, stepRatio, stepRatioSmall, finalLead, gap]);

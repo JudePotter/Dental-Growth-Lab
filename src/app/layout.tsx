@@ -40,6 +40,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           {children}
         </div>
         <Footer />
+        {/* On a touch screen, a solid bar along the bottom edge. */}
+        <div className="bottom-bar" aria-hidden="true" />
         <Analytics />
       </body>
     </html>

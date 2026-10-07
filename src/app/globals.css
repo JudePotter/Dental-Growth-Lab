@@ -239,17 +239,35 @@ button {
 .section-rich {
   position: relative;
   isolation: isolate;
-  /* Cards that slide off the side of the screen (the pain piles) must not
-     widen the page: desktop browsers shrug that off, but iPhone and iPad
-     Safari zoom out to fit it. Clip, not hidden: hidden would stop the
-     sticky cards inside sticking. */
-  overflow-x: clip;
+
   background-color: oklch(0.42 0.2 var(--hue));
   clip-path: inset(0 round var(--shell-radius) var(--shell-radius) 0 0);
 }
 
 .section-rich-all {
   clip-path: inset(0 round var(--shell-radius));
+}
+
+/* From tablet width up the two pain piles slide off the sides of the screen
+   at the finale. That must not widen the page: desktop browsers shrug it off,
+   but iPhone and iPad Safari zoom out to fit it. Clip, not hidden, because
+   hidden would stop the sticky cards inside sticking. A phone has a single
+   pile that never leaves the screen sideways, so it needs none of this. */
+@media (min-width: 768px) {
+  .section-rich {
+    overflow-x: clip;
+  }
+}
+
+/* On a phone the rounded top corners are dropped: a clip-path round a section
+   this long, full of sticky cards, is the most expensive thing on the page to
+   keep scrolling smoothly, and the section's edge is hidden by the sheet that
+   overlaps it anyway. */
+@media (max-width: 767px) {
+  .section-rich,
+  .section-rich-all {
+    clip-path: none;
+  }
 }
 
 .section-rich::before {
@@ -295,6 +313,56 @@ button {
   inset-inline: 0;
   bottom: 0;
   z-index: 0;
+}
+
+/*
+  A footer taller than the smallest the screen ever is (100svh) cannot be
+  revealed whole by lifting the page, so it is simply part of the page: it
+  follows the shell, tucked up behind its rounded corners as the fixed one is.
+  Footer.tsx sets html[data-footer="static"].
+*/
+html[data-footer="static"] .site-footer {
+  position: relative;
+  margin-top: calc(-1 * var(--shell-radius));
+  padding-top: var(--shell-radius);
+}
+
+html[data-footer="static"] .page-shell {
+  margin-bottom: 0;
+}
+
+/*
+  The bottom bar. On a touch screen iPhone Safari (iOS 26) floats its controls
+  over the page, and lets the page scroll under them, so the words end up under
+  the buttons. A fixed element is never drawn below those controls, so a solid
+  bar here sits directly above them, and Safari tints the area under the
+  controls from it. It is the same deep blue as the page behind everything.
+  --bottom-bar-h is also what the footer and the orbit stage leave room for.
+*/
+:root {
+  --bottom-bar-h: 0px;
+}
+
+.bottom-bar {
+  display: none;
+}
+
+@media (hover: none) and (pointer: coarse) {
+  :root {
+    --bottom-bar-h: 1.5rem;
+  }
+
+  .bottom-bar {
+    display: block;
+    position: fixed;
+    inset-inline: 0;
+    bottom: 0;
+    z-index: 45;
+    height: max(var(--bottom-bar-h), env(safe-area-inset-bottom, 0px));
+    background: var(--color-royal-950);
+    box-shadow: 0 -1px 0 oklch(1 0 0 / 0.1);
+    pointer-events: none;
+  }
 }
 
 /*

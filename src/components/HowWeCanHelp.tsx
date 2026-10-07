@@ -184,7 +184,7 @@ const STAGE_RHEAD =
   "orbit:absolute orbit:left-[var(--ff-left,40%)] orbit:top-[var(--rh-top,60%)] orbit:z-[7] orbit:m-0 orbit:flex orbit:h-[var(--rh-h,8rem)] orbit:w-[var(--ff-w,40rem)] orbit:items-center orbit:opacity-0 orbit:will-change-transform";
 /** The line and the button run across the whole bottom of the screen (`--st-h`). */
 const STAGE_RSTRIP =
-  "orbit:absolute orbit:bottom-[var(--edge-y,0.5rem)] orbit:left-[var(--edge-x,1rem)] orbit:z-[7] orbit:m-0 orbit:h-[var(--st-h,6rem)] orbit:w-[calc(100%-2*var(--edge-x,1rem))] orbit:opacity-0 orbit:will-change-transform";
+  "orbit:absolute orbit:bottom-[var(--edge-b,0.5rem)] orbit:left-[var(--edge-x,1rem)] orbit:z-[7] orbit:m-0 orbit:h-[var(--st-h,6rem)] orbit:w-[calc(100%-2*var(--edge-x,1rem))] orbit:opacity-0 orbit:will-change-transform";
 
 /*
  * The carousel (phones, iPads in portrait). The track bleeds to the screen
@@ -274,9 +274,15 @@ function Orbit({ photoSrc }: { photoSrc: string | null }) {
       let photoDX = 0;
       let photoDY = 0;
       let photoScale = 1;
+      // The solid bar along the bottom of a touch screen (see .bottom-bar in
+      // globals.css) covers the bottom of the stage, so the stage lays
+      // everything out in the height above it.
+      let barPx = 0;
       const geometry = (rows: number) => {
         const W = region.clientWidth;
-        const H = region.clientHeight;
+        const fullH = region.clientHeight;
+        barPx = document.querySelector<HTMLElement>(".bottom-bar")?.offsetHeight ?? 0;
+        const H = fullH - barPx;
         const edgeX = Math.max(16, W * 0.03);
         const edgeY = Math.max(10, H * 0.02);
         const gapX = Math.max(16, W * 0.016);
@@ -295,7 +301,10 @@ function Orbit({ photoSrc }: { photoSrc: string | null }) {
         // Just far enough that a card sent out to its own side is clear of the
         // screen, and a card coming in starts clear of it.
         out = W / 2 - photoW / 2 - gapX + 12;
-        rowY = Array.from({ length: rows }, (_, r) => (r - (rows - 1) / 2) * (cardH + gapY));
+        rowY = Array.from(
+          { length: rows },
+          (_, r) => (r - (rows - 1) / 2) * (cardH + gapY) - barPx / 2
+        );
 
         region.style.setProperty("--photo-w", `${photoW}px`);
         region.style.setProperty("--photo-h", `${photoH}px`);
@@ -318,7 +327,7 @@ function Orbit({ photoSrc }: { photoSrc: string | null }) {
         }
         photoScale = photoEndH / photoH;
         photoDX = edgeX + photoEndW / 2 - W / 2;
-        photoDY = edgeY + photoEndH / 2 - H / 2;
+        photoDY = edgeY + photoEndH / 2 - fullH / 2;
 
         const colLeft = edgeX + photoEndW + gapX * 1.5;
         const ffH = Math.round(mainH * 0.64);
@@ -330,6 +339,7 @@ function Orbit({ photoSrc }: { photoSrc: string | null }) {
         region.style.setProperty("--rh-top", `${headTop}px`);
         region.style.setProperty("--rh-h", `${edgeY + mainH - headTop}px`);
         region.style.setProperty("--st-h", `${stripH}px`);
+        region.style.setProperty("--edge-b", `${edgeY + barPx}px`);
       };
 
       // The text is as large as it can be while every card still holds its
@@ -465,7 +475,7 @@ function Orbit({ photoSrc }: { photoSrc: string | null }) {
         // from the right at the top of the column beside it.
         const xf = (T - swipeAt(finalK)) / SWIPE;
         const ps = smooth(clamp01((xf - 0.45) / 0.55));
-        photo.style.transform = `translate3d(${(photoDX * ps).toFixed(1)}px, ${(photoDY * ps).toFixed(1)}px, 0) scale(${(1 + (photoScale - 1) * ps).toFixed(4)})`;
+        photo.style.transform = `translate3d(${(photoDX * ps).toFixed(1)}px, ${(photoDY * ps - (barPx / 2) * (1 - ps)).toFixed(1)}px, 0) scale(${(1 + (photoScale - 1) * ps).toFixed(4)})`;
 
         const fe = smooth(clamp01((xf - 0.62) / 0.6));
         if (fe <= 0) {
