@@ -196,14 +196,15 @@ const STAGE_RSTRIP =
 const TRACK =
   "grid gap-4 sm:grid-cols-2 carousel:relative carousel:flex carousel:snap-x carousel:snap-mandatory carousel:gap-3 carousel:overflow-x-auto carousel:overscroll-x-contain carousel:-mx-6 carousel:scroll-px-6 carousel:px-6 carousel:pb-3 carousel:[scrollbar-width:none] carousel:[&::-webkit-scrollbar]:hidden sm:carousel:-mx-10 sm:carousel:scroll-px-10 sm:carousel:px-10";
 /**
- * The carousel locks the page while it plays: after the photo has scrolled
- * away, the cards are pinned and each PIN_STEP_VH of scrolling moves on one
- * card. A swipe sideways works too, and the page follows it. Keep the query in
+ * The carousel holds its place on the screen for a short stretch of scrolling:
+ * after the photo has scrolled away the cards lock in position (PIN_HOLD_SVH),
+ * so a visitor can swipe sideways through them, and then the page carries on.
+ * Scrolling down is never blocked and never moves the cards. Keep the query in
  * sync with the `carousel` variant in globals.css.
  */
 const CAROUSEL_QUERY =
   "not all and (min-width: 1024px) and (min-height: 540px) and (min-aspect-ratio: 11/10)";
-const PIN_STEP_VH = 42;
+const PIN_HOLD_SVH = 55;
 /** The smallest the pinned carousel's writing is taken down to on a short phone. */
 const MIN_CAROUSEL_SCALE = 0.7;
 
@@ -223,8 +224,6 @@ function Orbit({ photoSrc }: { photoSrc: string | null }) {
   const innerRefs = useRef<(HTMLDivElement | null)[]>([]);
   const trackRef = useRef<HTMLDivElement>(null);
   const pinRef = useRef<HTMLDivElement>(null);
-  /** Set by the pin effect: tells the page which card is now showing. */
-  const syncPageRef = useRef<((i: number) => void) | null>(null);
   const [active, setActive] = useState(0);
 
   // The carousel: which card is centred, and the buttons that move it.
@@ -253,15 +252,14 @@ function Orbit({ photoSrc }: { photoSrc: string | null }) {
         left: card.offsetLeft + card.offsetWidth / 2 - track.clientWidth / 2,
         behavior: reduced ? "auto" : "smooth",
       });
-      syncPageRef.current?.(Math.min(pillars.length - 1, Math.max(0, i)));
     },
     [reduced]
   );
 
-  // The carousel, locked. While it is pinned the page scroll moves the cards
-  // on one at a time; and a sideways swipe moves the page to match, so the two
-  // never fight. Only a swipe that really moved the track counts: a page
-  // scroll that merely starts on a card must not be reset.
+  // The carousel's writing is fitted so the fullest card sits whole inside the
+  // locked stage, between the header and the hint and buttons under it. The
+  // stage is a screen tall, so a short phone gets smaller writing rather than
+  // a clipped card.
   useLayoutEffect(() => {
     if (reduced) return;
     const mm = gsap.matchMedia();
@@ -271,15 +269,8 @@ function Orbit({ photoSrc }: { photoSrc: string | null }) {
       const track = trackRef.current;
       const stage = pin?.firstElementChild as HTMLElement | null;
       if (!pin || !track || !stage) return;
-      const cards = cardRefs.current.filter(Boolean) as HTMLElement[];
-      const last = cards.length - 1;
-      if (last < 1) return;
-
-      // Fit: the writing is scaled down, never below MIN_CAROUSEL_SCALE, until
-      // the fullest card sits whole inside the stage, between the header and
-      // the hint and buttons under it. The stage height is fixed (a screen), so
-      // a short phone gets smaller writing rather than a clipped card.
       const inners = innerRefs.current.filter(Boolean) as HTMLElement[];
+
       const fit = () => {
         const style = getComputedStyle(stage);
         const kids = Array.from(stage.children) as HTMLElement[];
@@ -309,93 +300,9 @@ function Orbit({ photoSrc }: { photoSrc: string | null }) {
       fit();
       ScrollTrigger.addEventListener("refreshInit", fit);
 
-      const cardLeft = (i: number) =>
-        cards[i].offsetLeft + cards[i].offsetWidth / 2 - track.clientWidth / 2;
-      const pageY = (i: number) =>
-        pin.getBoundingClientRect().top +
-        window.scrollY +
-        (i / last) * (pin.offsetHeight - stage.offsetHeight);
-      const nearest = () => {
-        const mid = track.scrollLeft + track.clientWidth / 2;
-        let best = 0;
-        let bestD = Infinity;
-        cards.forEach((c, i) => {
-          const d = Math.abs(c.offsetLeft + c.offsetWidth / 2 - mid);
-          if (d < bestD) {
-            bestD = d;
-            best = i;
-          }
-        });
-        return best;
-      };
-
-      let current = 0;
-      let touching = false;
-      let moved = false;
-      let lastLeft = track.scrollLeft;
-      let timer = 0;
-
-      const settle = () => {
-        if (touching) {
-          timer = window.setTimeout(settle, 120);
-          return;
-        }
-        if (!moved) return;
-        moved = false;
-        current = nearest();
-        window.scrollTo({ top: pageY(current), behavior: "instant" as ScrollBehavior });
-      };
-      const arm = () => {
-        window.clearTimeout(timer);
-        timer = window.setTimeout(settle, 140);
-      };
-      const onTouchStart = () => {
-        touching = true;
-      };
-      const onTouchEnd = () => {
-        touching = false;
-        if (moved) arm();
-      };
-      const onScroll = () => {
-        const l = track.scrollLeft;
-        if (touching && Math.abs(l - lastLeft) > 1) moved = true;
-        lastLeft = l;
-        if (moved) arm();
-      };
-
-      track.addEventListener("touchstart", onTouchStart, { passive: true });
-      track.addEventListener("touchend", onTouchEnd, { passive: true });
-      track.addEventListener("touchcancel", onTouchEnd, { passive: true });
-      track.addEventListener("scroll", onScroll, { passive: true });
-
-      syncPageRef.current = (i) => {
-        current = i;
-        window.scrollTo({ top: pageY(i), behavior: "instant" as ScrollBehavior });
-      };
-
-      const trigger = ScrollTrigger.create({
-        trigger: pin,
-        start: "top top",
-        end: "bottom bottom",
-        onUpdate: (self) => {
-          if (moved || touching) return;
-          const i = Math.min(last, Math.max(0, Math.round(self.progress * last)));
-          if (i === current) return;
-          current = i;
-          track.scrollTo({ left: cardLeft(i), behavior: "smooth" });
-        },
-      });
-
       return () => {
-        window.clearTimeout(timer);
-        trigger.kill();
         ScrollTrigger.removeEventListener("refreshInit", fit);
         stage.style.removeProperty("--fit-scale");
-        syncPageRef.current = null;
-        track.removeEventListener("touchstart", onTouchStart);
-        track.removeEventListener("touchend", onTouchEnd);
-        track.removeEventListener("touchcancel", onTouchEnd);
-        track.removeEventListener("scroll", onScroll);
       };
     });
 
@@ -755,7 +662,7 @@ function Orbit({ photoSrc }: { photoSrc: string | null }) {
             className={scrub ? "carousel:h-[var(--pin-h)] orbit:contents" : ""}
             style={
               {
-                "--pin-h": `calc(100svh + ${(pillars.length - 1) * PIN_STEP_VH}svh)`,
+                "--pin-h": `calc(100svh + ${PIN_HOLD_SVH}svh)`,
               } as React.CSSProperties
             }
           >

@@ -11,8 +11,10 @@
 :root {
   --hue: 264;
 
-  /* The blue of the page at the top. See `html` below. */
-  --chrome-tint: oklch(0.5 0.2 calc(var(--hue) - 12));
+  /* The blue at the top of the page (measured). See `html` below and
+     ChromeTint.tsx, which swaps it for the colour of whatever section is at
+     the top of the screen. */
+  --chrome-tint: #0e7ee6;
 
   /* Space the fixed header occupies. Every pinned stage pads its top by
      this so nothing is ever trapped underneath it. */
@@ -359,7 +361,7 @@ html[data-footer="static"] .page-shell {
 
 @media (hover: none) and (pointer: coarse) {
   :root {
-    --bottom-bar-h: 1.5rem;
+    --bottom-bar-h: 0.5rem;
   }
 
   .bottom-bar {

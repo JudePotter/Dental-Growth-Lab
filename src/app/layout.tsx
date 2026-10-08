@@ -1,10 +1,11 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Bricolage_Grotesque, Manrope } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 import SmoothScroll from "@/components/SmoothScroll";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import ChromeTint from "@/components/ChromeTint";
 
 const bricolage = Bricolage_Grotesque({
   variable: "--font-bricolage",
@@ -17,6 +18,12 @@ const manrope = Manrope({
   subsets: ["latin"],
   display: "swap",
 });
+
+export const viewport: Viewport = {
+  // Older iPhones and Android browsers use this for the browser bar; iOS 26
+  // ignores it and reads the page background instead (see ChromeTint).
+  themeColor: "#0e7ee6",
+};
 
 export const metadata: Metadata = {
   title: "Dental Growth Lab | Build a Practice That Works Without You",
@@ -32,6 +39,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     >
       <body className="min-h-full text-white">
         <SmoothScroll />
+        <ChromeTint />
         <Header />
         {/* The page. It lifts away at the very end to reveal the footer,
             which is fixed behind it. */}
