@@ -25,27 +25,25 @@ export default function NextSteps() {
           {steps.map((step, i) => (
             <li key={step.title}>
               <Reveal>
-                <div className="flex gap-5 rounded-[1.5rem] border border-white/15 bg-white/[0.07] p-[clamp(1.1rem,2.2vw,1.75rem)] backdrop-blur-sm">
+                <div className="grid grid-cols-[2.25rem_minmax(0,1fr)] items-center gap-x-3 gap-y-3 rounded-[1.5rem] border border-white/15 bg-white/[0.07] p-[clamp(1rem,2.2vw,1.75rem)] backdrop-blur-sm sm:grid-cols-[2.75rem_minmax(0,1fr)] sm:items-start sm:gap-x-5 sm:gap-y-0">
                   <span
                     aria-hidden="true"
-                    className="t-text-strong flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-white text-royal-700"
+                    className="t-text-strong flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white text-royal-700 sm:h-11 sm:w-11"
                   >
                     {i + 1}
                   </span>
-                  <div className="min-w-0">
-                    <h3 className="t-text-strong text-white">{step.title}</h3>
-                    <ul className="mt-3 flex flex-col gap-2">
-                      {step.points.map((point) => (
-                        <li key={point} className="t-text flex items-start gap-3 text-white/85">
-                          <span
-                            aria-hidden="true"
-                            className="mt-[0.6em] h-1.5 w-1.5 shrink-0 rounded-full bg-sky-300"
-                          />
-                          {point}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
+                  <h3 className="t-text-strong text-white sm:pt-[0.55rem]">{step.title}</h3>
+                  <ul className="col-span-2 flex flex-col gap-2 sm:col-span-1 sm:col-start-2 sm:mt-3">
+                    {step.points.map((point) => (
+                      <li key={point} className="t-text flex items-start gap-3 text-white/85">
+                        <span
+                          aria-hidden="true"
+                          className="mt-[0.6em] h-1.5 w-1.5 shrink-0 rounded-full bg-sky-300"
+                        />
+                        {point}
+                      </li>
+                    ))}
+                  </ul>
                 </div>
               </Reveal>
             </li>

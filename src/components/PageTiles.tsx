@@ -56,7 +56,7 @@ export default function PageTiles({
 
   return (
     <section id="explore" className="type-compact relative">
-      <div className="mx-auto max-w-[1320px] px-6 pb-[clamp(5rem,13vh,8rem)] pt-[clamp(1.5rem,5vh,3rem)] sm:px-10">
+      <div className="mx-auto max-w-[1320px] px-6 pb-[clamp(2.5rem,6vh,4rem)] pt-[clamp(1.5rem,5vh,3rem)] sm:px-10">
         <ul
           className={`grid gap-[clamp(0.75rem,1.6vw,1.25rem)] ${
             skip ? "md:grid-cols-2" : "lg:grid-cols-3"

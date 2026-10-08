@@ -84,22 +84,22 @@ export default function Footer() {
         className="pointer-events-none absolute inset-x-0 bottom-0 top-[calc(-1*var(--shell-radius))] bg-white"
       />
 
-      <div className="relative mx-auto max-w-[1400px] px-6 pb-[calc(1.25rem+var(--bottom-bar-h,0px))] pt-[clamp(2rem,6vh,3.5rem)] sm:px-10">
+      <div className="relative mx-auto max-w-[1400px] px-6 pb-[calc(1rem+var(--bottom-bar-h,0px))] pt-[clamp(1.75rem,4.5vh,2.75rem)] sm:px-10">
         {/* The Contact column has a minimum width so the email can never run into
             the Follow column, and the headline column stays wide enough for
             two lines. */}
-        <div className="grid grid-cols-[minmax(0,0.78fr)_minmax(0,1.22fr)] gap-x-5 gap-y-7 sm:grid-cols-2 sm:gap-x-8 lg:grid-cols-[minmax(0,1.7fr)_minmax(0,0.55fr)_minmax(14rem,0.85fr)_minmax(0,0.55fr)] lg:gap-y-8">
+        <div className="grid grid-cols-[minmax(0,0.78fr)_minmax(0,1.22fr)] gap-x-5 gap-y-7 sm:grid-cols-2 sm:gap-x-8 lg:grid-cols-[minmax(0,1.35fr)_minmax(0,1.05fr)_minmax(14rem,0.8fr)_minmax(0,0.5fr)] lg:gap-y-6">
           <div className="col-span-2 lg:col-span-1">
-            <p className="t-h2 max-w-[20ch] text-balance">
+            <p className="t-h2 max-w-[20ch] text-balance max-lg:text-[clamp(1.4rem,6vw,1.75rem)] lg:max-w-[24ch] lg:text-[clamp(1.5rem,2.1vw,2rem)]">
               Build a practice that works for you, without you.
             </p>
-            <div className="mt-5">
+            <div className="mt-4">
               <BookCallButton variant="solid" />
             </div>
           </div>
 
-          <nav aria-label="Footer" className="flex flex-col gap-2 lg:gap-2.5">
-            <p className={COLUMN_HEADING}>Explore</p>
+          <nav aria-label="Footer" className="flex flex-col gap-2 lg:grid lg:grid-cols-2 lg:gap-x-8 lg:gap-y-1.5">
+            <p className={`${COLUMN_HEADING} lg:col-span-2 lg:mb-1`}>Explore</p>
             {NAV_LINKS.map((link) => (
               <Link key={link.href} href={link.href} className={COLUMN_LINK}>
                 {link.label}
@@ -136,8 +136,8 @@ export default function Footer() {
         </div>
 
         <div
-          className="mt-[clamp(1.25rem,3vh,2.5rem)] flex items-end gap-[0.2em] whitespace-nowrap font-display leading-[0.9] tracking-[-0.045em]"
-          style={{ fontSize: "min(7.2vw, 16vh, 8rem)" }}
+          className="mt-[clamp(1rem,2.4vh,1.75rem)] flex items-end gap-[0.2em] whitespace-nowrap font-display leading-[0.9] tracking-[-0.045em]"
+          style={{ fontSize: "min(4.6vw, 9.5vh, 5rem)" }}
         >
           <LogoMark className="mb-[0.06em] h-[0.95em] w-[0.95em] shrink-0 text-ink-black/90" />
           <span

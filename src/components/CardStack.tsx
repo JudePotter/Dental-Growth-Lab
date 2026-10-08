@@ -120,13 +120,17 @@ export default function CardStack({
       const normal = list.slice(0, -1);
       const tallest = Math.max(0, ...normal.map((c) => c.offsetHeight));
       cardH = Math.max(Math.min(available, limit), tallest);
-      const centred = headerH + edge + peekRoom + Math.max(0, (available - cardH) / 2);
-      stackTop = Math.min(centred, window.innerHeight - cardH - edge);
+      // The piles sit just beneath the header, so as much of the section as
+      // possible is on screen while they deal. The finale card, alone, is
+      // centred.
+      const underHeader = headerH + edge + peekRoom;
+      const centred = underHeader + Math.max(0, (available - cardH) / 2);
+      stackTop = Math.min(underHeader, window.innerHeight - cardH - edge);
 
       // The finale card grows about its centre, as far as the screen allows.
       const lastNatural = list.length ? list[list.length - 1].offsetHeight : cardH;
       lastH = Math.max(Math.min(available, Math.round(cardH * lastGrow)), lastNatural, cardH);
-      stackTopLast = Math.max(headerH + edge, stackTop - (lastH - cardH) / 2);
+      stackTopLast = Math.max(headerH + edge, centred - (lastH - cardH) / 2);
       lastH = Math.min(lastH, window.innerHeight - edge - stackTopLast);
 
       if (cols === 2) {
@@ -169,7 +173,9 @@ export default function CardStack({
         if (under < 0) return 1;
         const underBottom =
           j === last ? stackTop + cardH : stuckTop(under) + heightOf(under);
-        const covers = underBottom - stuckTop(j);
+        // Guard: a finale that starts below the piles' bottom edge still needs
+        // a distance to travel.
+        const covers = Math.max(80, underBottom - stuckTop(j));
         return 1 - clamp01((posOf(j) - stuckTop(j)) / covers);
       });
 

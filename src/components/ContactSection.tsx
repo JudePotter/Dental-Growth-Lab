@@ -39,7 +39,7 @@ export default function ContactSection({
 }) {
   return (
     <section id="contact" className="relative">
-      <div className="mx-auto max-w-[1320px] px-6 pb-[clamp(5rem,12vh,8rem)] pt-[calc(var(--header-h)+clamp(2rem,7vh,5rem))] sm:px-10">
+      <div className="mx-auto max-w-[1320px] px-6 pb-[clamp(2.5rem,6vh,4rem)] pt-[calc(var(--header-h)+clamp(2rem,7vh,5rem))] sm:px-10">
         <Reveal className="mx-auto max-w-[820px] text-center">
           <h2 className="t-big text-balance text-white">{heading}</h2>
           <p className="t-text mt-5 text-white/85">{lead}</p>
