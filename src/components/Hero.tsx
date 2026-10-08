@@ -54,6 +54,27 @@ export default function Hero({ photoSrc }: { photoSrc: string | null }) {
           >
             Build a practice that works for you, without you.
           </motion.p>
+
+          {/* On a phone the cue sits under the last line, above the photo, and
+              pulses. On a laptop it stays at the bottom of the screen. */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.8, delay: 1.2 }}
+            aria-hidden="true"
+            className="mt-[clamp(1rem,3vh,1.5rem)] flex flex-col items-center gap-1.5 text-white lg:hidden"
+          >
+            <span className="t-label scroll-pulse">Scroll</span>
+            <svg viewBox="0 0 20 12" fill="none" className="scroll-pulse h-3 w-5">
+              <path
+                d="M2 2l8 8 8-8"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </motion.div>
         </div>
 
         <motion.div
@@ -85,7 +106,7 @@ export default function Hero({ photoSrc }: { photoSrc: string | null }) {
         animate={{ opacity: 1 }}
         transition={{ duration: 1, delay: 1.5 }}
         aria-hidden="true"
-        className="absolute inset-x-0 bottom-6 hidden flex-col items-center gap-2 text-white/60 [@media(min-height:700px)]:flex"
+        className="absolute inset-x-0 bottom-6 hidden flex-col items-center gap-2 text-white/60 lg:[@media(min-height:700px)]:flex"
       >
         <span className="t-label">Scroll</span>
         <motion.span

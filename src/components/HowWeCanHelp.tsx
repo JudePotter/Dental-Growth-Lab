@@ -50,18 +50,17 @@ function Intro() {
  * The orbit.
  *
  * Wide screens (laptops, desktops, iPads in landscape): a sticky, full-viewport
- * stage with Pujan's photo fixed in the centre and large cards round it, in
- * sets. The first set is on screen; then, as the visitor scrolls, the cards
- * leave like doors opening (the left ones out to the left, the right ones out
- * to the right) and the next set comes in from the same two sides, and again,
- * until every pillar bar the last has had its turn. How many cards are in a
- * set depends on the room: six on a big monitor, four on a laptop or iPad,
- * and two on a screen too short for four. The ending is one composed screen:
- * the photo slides to the left and grows into a tall column, the last pillar,
- * Freedom, arrives as a card at the top right with its lines arriving one by
- * one, "Ready to take back control of your practice?" comes in beneath it at
- * the bottom right, and last the line and the Book a Call button run across
- * the whole of the bottom of the screen.
+ * stage with Pujan's photo fixed in the centre and cards round it. A handful
+ * of cards (four on a laptop) sit in fixed places round the photo, and as the
+ * visitor scrolls ONE card changes at a time: the oldest rolls out of its
+ * place along the orbit and its replacement rolls into the very same place, in
+ * reading order (top left, top right, bottom left, bottom right, then round
+ * again). The other cards never move, so the eye always knows where to look,
+ * and a slim progress rail under the photo shows which pillars are on screen.
+ * The last pillar, Freedom, takes the oldest place at the top left, then, as
+ * the rest roll away, rolls clockwise round the photo to rest on its right,
+ * and only once it has landed do "Ready to take back control of your
+ * practice?", the line and the Book a Call button come up on the left.
  *
  * Phones and iPads in portrait: the photo, then the pillars as a swipe
  * carousel (one big card at a time, snapping), then the closing section.
@@ -75,22 +74,23 @@ function Intro() {
  */
 const ORBIT_QUERY = "(min-width: 1024px) and (min-height: 540px) and (min-aspect-ratio: 11/10)";
 
-/** Every pillar but the last goes in a set; the last, Freedom, has the screen to itself. */
+/** Every pillar but the last takes its turn in the places round the photo; the last, Freedom, finishes it. */
 const SET_CARDS = pillars.length - 1;
 
+/** How far along the orbit a card rolls as it comes in or goes out, in place spacings. */
+const TRAVEL = 0.42;
+
 /** The timeline, in units. One unit is about half a screen of scrolling. */
-const HOLD_FIRST = 0.8;
-const SWIPE = 0.95;
-const HOLD = 1.25;
-/** In a swipe the old set is out by this share of it, and the new set starts then. */
-const SWIPE_SPLIT = 0.5;
-/** Freedom's lines arrive one by one: this many units each, after the card has landed. */
-const FREEDOM_LINE = 0.28;
-/** The closing heading, then the bottom bar, each come in over this many units. */
-const HEAD_IN = 0.7;
-const STRIP_IN = 0.7;
+const HOLD_FIRST = 0.5;
+/** One card changing: it rolls for MOVE, then everything rests for HOLD. */
+const MOVE = 0.6;
+const HOLD = 0.3;
+/** The finish: the rest roll away and Freedom rolls round to its end place. */
+const FINAL_MOVE = 1.0;
+/** The closing words rise in over this many units. */
+const READY_IN = 0.8;
 /** The finished ending is held for this long before the page is let go. */
-const HOLD_LAST = 1.7;
+const HOLD_LAST = 1.2;
 const UNIT_VH = 50;
 
 /**
@@ -106,11 +106,11 @@ const ONE_ROW_CARD_H = 540;
 
 /**
  * How many rows of cards the stage may hold, most first, and the smallest body
- * text each is allowed (px). Four cards a set (two rows) is the standard, down
- * to 12px on a short iPad; six (three rows) only where the text stays at 15.5px
+ * text each is allowed (px). Four cards (two rows) is the standard, down to
+ * 12px on a short iPad; six (three rows) only where the text stays at 15.5px
  * or more, which is a 2560 wide monitor and up. One row is the fallback, so it
- * has no minimum. A set is two cards a row, and 12 divides into sets of 2, 4
- * or 6.
+ * has no minimum. 12 divides by 2, 4 and 6, which keeps Freedom's entrance in
+ * the same place, the top left.
  */
 const ROW_OPTIONS = [3, 2, 1];
 const MIN_BODY_PX: Record<number, number> = { 3: 15.5, 2: 12, 1: 0 };
@@ -119,49 +119,71 @@ const smooth = (t: number) => {
   const c = Math.min(1, Math.max(0, t));
   return c * c * (3 - 2 * c);
 };
-const clamp01 = (v: number) => Math.min(1, Math.max(0, v));
+
+type CardPlan = {
+  /** The place round the photo it sits in (0 is the top left, then reading order). */
+  slot: number;
+  /** The move (1 based) it rolls in during, or 0 if it starts on screen. */
+  inMove: number;
+  /** The move it rolls out during. */
+  outMove: number;
+};
 
 type Layout = {
   rows: number;
-  /** Cards in a set. */
+  /** How many cards are on screen at once. */
   size: number;
-  /** How many sets there are. */
-  sets: number;
-  /** Where a swipe (0 based) starts, in units. The last one is the swipe to Freedom. */
-  swipeAt: (k: number) => number;
-  /** When Freedom's lines start to arrive. */
-  linesAt: number;
-  /** When the closing heading, and then the bottom bar, start to come in. */
-  headAt: number;
-  stripAt: number;
+  /** One plan per pillar before Freedom. */
+  plan: CardPlan[];
+  /** Where a move (1 based) starts, in units. */
+  startOf: (k: number) => number;
+  /** The move Freedom rolls in during, taking the oldest card's place. */
+  freedomIn: number;
+  /** The move the others roll away and Freedom rolls round to its end place. */
+  finish: number;
+  /** Where Freedom ends, as a position along the orbit: right of the photo, halfway down. */
+  finalRest: number;
+  readyAt: number;
   total: number;
 };
 
 function buildLayout(rows: number): Layout {
   const size = rows * 2;
-  const sets = Math.ceil(SET_CARDS / size);
-  // With only two cards a set there are six swipes, so the pauses are shorter.
-  const hold = rows === 1 ? HOLD * 0.7 : HOLD;
-  const swipeAt = (k: number) => HOLD_FIRST + k * (SWIPE + hold);
-  const freedomLanded = swipeAt(sets - 1) + SWIPE;
-  // Freedom's closing lines and the lines of the list: (list + 2) beats.
-  const beats = (pillars[pillars.length - 1].body.find((b) => b.kind === "lines") as
-    | { items: string[] }
-    | undefined)?.items.length;
-  const linesAt = freedomLanded + 0.2;
-  const headAt = linesAt + ((beats ?? 7) + 3) * FREEDOM_LINE + 0.1;
-  const stripAt = headAt + HEAD_IN * 0.8;
+  const changes = SET_CARDS - size;
+  const startOf = (k: number) => HOLD_FIRST + (k - 1) * (MOVE + HOLD);
+  const freedomIn = changes + 1;
+  const finish = changes + 2;
+  const plan: CardPlan[] = Array.from({ length: SET_CARDS }, (_, i) => ({
+    slot: i < size ? i : (i - size) % size,
+    inMove: i < size ? 0 : i - size + 1,
+    // The card in a place is replaced when its turn comes, oldest first.
+    outMove: i < changes ? i + 1 : i === changes ? freedomIn : finish,
+  }));
+  // The closing words wait until Freedom has landed in its end place.
+  const readyAt = startOf(finish) + FINAL_MOVE;
   return {
     rows,
     size,
-    sets,
-    swipeAt,
-    linesAt,
-    headAt,
-    stripAt,
-    total: stripAt + STRIP_IN + HOLD_LAST,
+    plan,
+    startOf,
+    freedomIn,
+    finish,
+    finalRest: 1 + (rows - 1) / 2,
+    readyAt,
+    total: readyAt + READY_IN + HOLD_LAST,
   };
 }
+
+/**
+ * The places round the photo sit on a loop, clockwise from the top left: the
+ * top of the left column, down the right column, then back up the left. A slot
+ * (0 is the top left, 1 the top right, 2 the next row down on the left, and so
+ * on in reading order) is a position along that loop.
+ */
+const slotU = (slot: number, rows: number) => {
+  const row = Math.floor(slot / 2);
+  return slot % 2 ? 1 + row : row === 0 ? 0 : 2 * rows - row;
+};
 
 /*
  * Tailwind only generates classes it can read whole in the source, so the
@@ -176,15 +198,12 @@ const STAGE_PHOTO =
   "orbit:absolute orbit:left-1/2 orbit:top-1/2 orbit:mb-0 orbit:aspect-auto orbit:h-[var(--photo-h,60svh)] orbit:w-[var(--photo-w,40svh)] orbit:-translate-x-1/2 orbit:-translate-y-1/2";
 const STAGE_CARD =
   "orbit:absolute orbit:left-[calc(50%-var(--card-w,28rem)/2)] orbit:top-[calc(50%-var(--card-h,20rem)/2)] orbit:h-[var(--card-h,20rem)] orbit:w-[var(--card-w,28rem)] orbit:opacity-0 orbit:will-change-transform";
-/** Freedom is the card at the top of the right hand column (`--ff-*`). */
-const STAGE_FREEDOM =
-  "orbit:absolute orbit:left-[var(--ff-left,40%)] orbit:top-[var(--ff-top,0.5rem)] orbit:h-[var(--ff-h,20rem)] orbit:w-[var(--ff-w,40rem)] orbit:opacity-0 orbit:will-change-transform";
-/** "Ready to take back control" is under it, in the same column (`--rh-*`). */
-const STAGE_RHEAD =
-  "orbit:absolute orbit:left-[var(--ff-left,40%)] orbit:top-[var(--rh-top,60%)] orbit:z-[7] orbit:m-0 orbit:flex orbit:h-[var(--rh-h,8rem)] orbit:w-[var(--ff-w,40rem)] orbit:items-center orbit:opacity-0 orbit:will-change-transform";
-/** The line and the button run across the whole bottom of the screen (`--st-h`). */
-const STAGE_RSTRIP =
-  "orbit:absolute orbit:bottom-[var(--edge-b,0.5rem)] orbit:left-[var(--edge-x,1rem)] orbit:z-[7] orbit:m-0 orbit:h-[var(--st-h,6rem)] orbit:w-[calc(100%-2*var(--edge-x,1rem))] orbit:opacity-0 orbit:will-change-transform";
+/** The closing words: a column on the left, vertically centred (`--ready-left`, `--card-w`, `--ready-top`). */
+const STAGE_READY =
+  "orbit:absolute orbit:left-[var(--ready-left,2rem)] orbit:top-[var(--ready-top,50%)] orbit:z-[7] orbit:m-0 orbit:w-[var(--card-w,28rem)] orbit:-translate-y-1/2 orbit:opacity-0 orbit:will-change-transform";
+/** The progress rail, under the photo (`--rail-top`, `--photo-w`). */
+const STAGE_RAIL =
+  "orbit:absolute orbit:left-1/2 orbit:top-[var(--rail-top,80%)] orbit:z-[5] orbit:flex orbit:-translate-x-1/2";
 
 /*
  * The carousel (phones, iPads in portrait). The track bleeds to the screen
@@ -218,8 +237,8 @@ function Orbit({ photoSrc }: { photoSrc: string | null }) {
   const outerRef = useRef<HTMLDivElement>(null);
   const regionRef = useRef<HTMLDivElement>(null);
   const photoRef = useRef<HTMLDivElement>(null);
-  const readyHeadRef = useRef<HTMLDivElement>(null);
-  const readyStripRef = useRef<HTMLDivElement>(null);
+  const readyRef = useRef<HTMLDivElement>(null);
+  const railRef = useRef<HTMLDivElement>(null);
   const cardRefs = useRef<(HTMLElement | null)[]>([]);
   const innerRefs = useRef<(HTMLDivElement | null)[]>([]);
   const trackRef = useRef<HTMLDivElement>(null);
@@ -317,16 +336,15 @@ function Orbit({ photoSrc }: { photoSrc: string | null }) {
       const outer = outerRef.current;
       const region = regionRef.current;
       const photo = photoRef.current;
-      const readyHead = readyHeadRef.current;
-      const readyStrip = readyStripRef.current;
+      const ready = readyRef.current;
+      const rail = railRef.current;
       const all = cardRefs.current.filter(Boolean) as HTMLElement[];
       const inners = innerRefs.current.filter(Boolean) as HTMLElement[];
-      if (!outer || !region || !photo || !readyHead || !readyStrip || all.length !== pillars.length) return;
+      if (!outer || !region || !photo || !ready || !rail || all.length !== pillars.length) return;
 
       const freedom = all[all.length - 1];
       const cards = all.slice(0, -1);
-      const freedomFull = freedom.querySelector<HTMLElement>("[data-freedom-full]");
-      const lines = Array.from(freedom.querySelectorAll<HTMLElement>("[data-fl]"));
+      const ticks = Array.from(rail.children) as HTMLElement[];
 
       // The layout in use. It starts on the default and is chosen again every
       // time the stage is measured.
@@ -334,13 +352,8 @@ function Orbit({ photoSrc }: { photoSrc: string | null }) {
 
       // Geometry, in px, from the size of the stage.
       let sx = 0;
-      let out = 0;
+      let stageH = 0;
       let rowY: number[] = [];
-      // Where the photo ends up (relative to where it starts, in the middle),
-      // and how much bigger it is there.
-      let photoDX = 0;
-      let photoDY = 0;
-      let photoScale = 1;
       // The solid bar along the bottom of a touch screen (see .bottom-bar in
       // globals.css) covers the bottom of the stage, so the stage lays
       // everything out in the height above it.
@@ -350,6 +363,7 @@ function Orbit({ photoSrc }: { photoSrc: string | null }) {
         const fullH = region.clientHeight;
         barPx = document.querySelector<HTMLElement>(".bottom-bar")?.offsetHeight ?? 0;
         const H = fullH - barPx;
+        stageH = H;
         const edgeX = Math.max(16, W * 0.03);
         const edgeY = Math.max(10, H * 0.02);
         const gapX = Math.max(16, W * 0.016);
@@ -365,9 +379,6 @@ function Orbit({ photoSrc }: { photoSrc: string | null }) {
         );
 
         sx = photoW / 2 + gapX + cardW / 2;
-        // Just far enough that a card sent out to its own side is clear of the
-        // screen, and a card coming in starts clear of it.
-        out = W / 2 - photoW / 2 - gapX + 12;
         rowY = Array.from(
           { length: rows },
           (_, r) => (r - (rows - 1) / 2) * (cardH + gapY) - barPx / 2
@@ -377,42 +388,15 @@ function Orbit({ photoSrc }: { photoSrc: string | null }) {
         region.style.setProperty("--photo-h", `${photoH}px`);
         region.style.setProperty("--card-w", `${cardW}px`);
         region.style.setProperty("--card-h", `${cardH}px`);
-        region.style.setProperty("--edge-x", `${edgeX}px`);
-        region.style.setProperty("--edge-y", `${edgeY}px`);
-
-        // The closing screen. The photo ends as a tall column on the left. In
-        // the column beside it Freedom is the card at the top and "Ready to take
-        // back control" sits under it; the line and the button run across the
-        // whole of the bottom.
-        const stripH = Math.max(96, Math.min(H * 0.16, 150));
-        const mainH = H - edgeY * 2 - stripH - gapY;
-        let photoEndH = mainH;
-        let photoEndW = (photoEndH * 2) / 3;
-        if (photoEndW > W * 0.31) {
-          photoEndW = W * 0.31;
-          photoEndH = (photoEndW * 3) / 2;
-        }
-        photoScale = photoEndH / photoH;
-        photoDX = edgeX + photoEndW / 2 - W / 2;
-        photoDY = edgeY + photoEndH / 2 - fullH / 2;
-
-        const colLeft = edgeX + photoEndW + gapX * 1.5;
-        const ffH = Math.round(mainH * 0.64);
-        const headTop = edgeY + ffH + gapY * 0.5;
-        region.style.setProperty("--ff-left", `${colLeft}px`);
-        region.style.setProperty("--ff-w", `${W - edgeX - colLeft}px`);
-        region.style.setProperty("--ff-top", `${edgeY}px`);
-        region.style.setProperty("--ff-h", `${ffH}px`);
-        region.style.setProperty("--rh-top", `${headTop}px`);
-        region.style.setProperty("--rh-h", `${edgeY + mainH - headTop}px`);
-        region.style.setProperty("--st-h", `${stripH}px`);
-        region.style.setProperty("--edge-b", `${edgeY + barPx}px`);
+        region.style.setProperty("--ready-left", `${W / 2 - sx - cardW / 2}px`);
+        region.style.setProperty("--ready-top", `${H / 2}px`);
+        region.style.setProperty("--rail-top", `${fullH / 2 - barPx / 2 + photoH / 2 + 16}px`);
       };
 
       // The text is as large as it can be while every card still holds its
       // words. Measured on every card at once, since they all share a size.
       const fits = () =>
-        cards.every((card, i) => {
+        all.every((card, i) => {
           const inner = inners[i];
           const style = getComputedStyle(card);
           const room =
@@ -432,35 +416,13 @@ function Orbit({ photoSrc }: { photoSrc: string | null }) {
           region.style.setProperty("--fit-scale", scale.toFixed(2));
         }
       };
-      // Freedom fills the screen, so its writing is big; shrink it only as far
-      // as it must for all of it to sit inside the card.
-      const fitFreedom = () => {
-        if (!freedomFull) return;
-        let scale = 1;
-        freedomFull.style.setProperty("--ff-scale", "1");
-        while (freedomFull.scrollHeight > freedomFull.clientHeight + 1 && scale > 0.5) {
-          scale -= 0.04;
-          freedomFull.style.setProperty("--ff-scale", scale.toFixed(2));
-        }
-      };
-      // The closing heading and the bar's line shrink only as far as they must
-      // to sit in their places. Their content is centred in its box, and
-      // overflow of a centred box is not reported, so the content is measured
-      // itself, with a little air.
+      // The closing words shrink only as far as they must to sit in the left
+      // column. They are centred, and overflow of a centred box is not
+      // reported, so the block itself is measured.
       const fitReady = () => {
-        const heading = readyHead.querySelector<HTMLElement>("h2");
-        const bar = readyStrip.firstElementChild as HTMLElement | null;
-        const text = readyStrip.querySelector<HTMLElement>("p");
-        if (!heading || !bar || !text) return;
         let scale = 1;
         region.style.setProperty("--rd-scale", "1");
-        const barRoom = () => {
-          const style = getComputedStyle(bar);
-          return bar.clientHeight - parseFloat(style.paddingTop) - parseFloat(style.paddingBottom);
-        };
-        const over = () =>
-          heading.offsetHeight > readyHead.clientHeight * 0.96 || text.offsetHeight > barRoom();
-        while (over() && scale > 0.45) {
+        while (ready.offsetHeight > stageH * 0.86 && scale > 0.45) {
           scale -= 0.04;
           region.style.setProperty("--rd-scale", scale.toFixed(2));
         }
@@ -476,7 +438,6 @@ function Orbit({ photoSrc }: { photoSrc: string | null }) {
             break;
           }
         }
-        fitFreedom();
         fitReady();
         outer.style.setProperty(
           "--orbit-h",
@@ -485,99 +446,109 @@ function Orbit({ photoSrc }: { photoSrc: string | null }) {
         region.dataset.rows = String(layout.rows);
       };
 
-      const hideEl = (el: HTMLElement) => {
-        el.style.opacity = "0";
-        el.style.visibility = "hidden";
-      };
-      const showEl = (el: HTMLElement) => {
-        el.style.opacity = "1";
-        el.style.visibility = "visible";
+      // Position `u` along the loop of places, clockwise from the top left. A
+      // card between two places is a point on the line between them.
+      const place = (u: number) => {
+        const rows = layout.rows;
+        const slots: [number, number][] = [[-sx, rowY[0]]];
+        for (let r = 0; r < rows; r++) slots.push([sx, rowY[r]]);
+        for (let r = rows - 1; r >= 1; r--) slots.push([-sx, rowY[r]]);
+        const n = slots.length;
+        const w = ((u % n) + n) % n;
+        const i = Math.floor(w);
+        const f = w - i;
+        const a = slots[i];
+        const b = slots[(i + 1) % n];
+        return { x: a[0] + (b[0] - a[0]) * f, y: a[1] + (b[1] - a[1]) * f };
       };
 
+      const lit: boolean[] = [];
       const render = (T: number) => {
-        const { sets, swipeAt, linesAt, headAt, stripAt } = layout;
-        const finalK = sets - 1;
-        const size = layout.size;
+        const { plan, startOf, freedomIn, finish, finalRest, readyAt, rows } = layout;
+
+        // One card, rolling in during `inMove`, rolling out during `outMove`.
+        // Out and in happen in the same place, so a card is replaced where it
+        // stands.
+        const roll = (
+          card: HTMLElement,
+          index: number,
+          slot: number,
+          inMove: number,
+          outMove: number
+        ) => {
+          const rest = slotU(slot, rows);
+          let u = rest;
+          let alpha = 1;
+          let scale = 1;
+          let moving = false;
+
+          if (inMove) {
+            const x = (T - startOf(inMove)) / MOVE;
+            if (x <= 0) alpha = 0;
+            else if (x < 1) {
+              const e = smooth(x);
+              u = rest - TRAVEL * (1 - e);
+              alpha = smooth((x - 0.42) / 0.58);
+              scale = 0.94 + 0.06 * e;
+              moving = true;
+            }
+          }
+          if (outMove) {
+            const x = (T - startOf(outMove)) / (outMove === finish ? FINAL_MOVE : MOVE);
+            if (x >= 1) alpha = 0;
+            else if (x > 0) {
+              const e = smooth(x);
+              u = rest + TRAVEL * e;
+              alpha = 1 - smooth(x / 0.5);
+              scale = 1 - 0.06 * e;
+              moving = true;
+            }
+          }
+          // Freedom, once in, carries on round the photo to its end place.
+          if (index === pillars.length - 1) {
+            const x = (T - startOf(finish)) / FINAL_MOVE;
+            if (x > 0) {
+              const e = smooth(x);
+              u = rest + (finalRest - rest) * e;
+              scale = 1 + 0.03 * e;
+              moving = moving || x < 1;
+            }
+          }
+
+          const { x, y } = place(u);
+          card.style.transform = `translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, 0) scale(${scale.toFixed(3)})`;
+          card.style.opacity = alpha.toFixed(3);
+          card.style.visibility = alpha <= 0.001 ? "hidden" : "visible";
+          // Cards on the move pass behind the photo, so they orbit it.
+          card.style.zIndex = moving ? "4" : "6";
+          return alpha > 0.05;
+        };
 
         cards.forEach((card, i) => {
-          const set = Math.floor(i / size);
-          const s = i % size;
-          const row = Math.floor(s / 2);
-          const dir = s % 2 ? 1 : -1;
-          // Each row starts a hair after the one above, so a set parts rather
-          // than jumps. 0.1 is the most this adds, and the ranges allow for it.
-          const delay = row * 0.05;
-          let dx = 0;
-          let hidden = false;
-
-          if (set > 0) {
-            // Coming in, from its own side, in the second half of the swipe.
-            const x = (T - swipeAt(set - 1)) / SWIPE;
-            if (x <= SWIPE_SPLIT) hidden = true;
-            else if (x < 1) {
-              const q = smooth(clamp01((x - SWIPE_SPLIT - delay) / (1 - SWIPE_SPLIT - 0.1)));
-              dx = dir * out * (1 - q);
-            }
+          const on = roll(card, i, plan[i].slot, plan[i].inMove, plan[i].outMove);
+          if (lit[i] !== on) {
+            lit[i] = on;
+            ticks[i].dataset.on = on ? "true" : "false";
           }
-          if (!hidden) {
-            // Going out, to its own side, in the first half of the swipe.
-            const x = (T - swipeAt(set)) / SWIPE;
-            if (x > 0) {
-              const q = smooth(clamp01((x - delay) / (SWIPE_SPLIT - 0.1)));
-              if (q >= 1) hidden = true;
-              else dx = dir * out * q;
-            }
-          }
-
-          if (hidden) {
-            hideEl(card);
-            return;
-          }
-          showEl(card);
-          card.style.transform = `translate3d(${(dir * sx + dx).toFixed(1)}px, ${rowY[row].toFixed(1)}px, 0)`;
         });
-
-        // The swipe to Freedom: the last set leaves (above), then the photo
-        // slides to the left, growing into its column, and Freedom comes in
-        // from the right at the top of the column beside it.
-        const xf = (T - swipeAt(finalK)) / SWIPE;
-        const ps = smooth(clamp01((xf - 0.45) / 0.55));
-        photo.style.transform = `translate3d(${(photoDX * ps).toFixed(1)}px, ${(photoDY * ps - (barPx / 2) * (1 - ps)).toFixed(1)}px, 0) scale(${(1 + (photoScale - 1) * ps).toFixed(4)})`;
-
-        const fe = smooth(clamp01((xf - 0.62) / 0.6));
-        if (fe <= 0) {
-          hideEl(freedom);
-        } else {
-          freedom.style.opacity = fe.toFixed(3);
-          freedom.style.visibility = "visible";
-          freedom.style.transform = `translate3d(${((1 - fe) * 80).toFixed(1)}px, 0, 0) scale(${(0.98 + 0.02 * fe).toFixed(3)})`;
+        const fi = pillars.length - 1;
+        const freedomOn = roll(freedom, fi, 0, freedomIn, 0);
+        if (lit[fi] !== freedomOn) {
+          lit[fi] = freedomOn;
+          ticks[fi].dataset.on = freedomOn ? "true" : "false";
         }
+        // The rail has done its job once Freedom is rolling to its end place.
+        rail.style.opacity = (1 - smooth((T - startOf(finish)) / (FINAL_MOVE * 0.5))).toFixed(3);
 
-        // Freedom's lines arrive one by one.
-        lines.forEach((el) => {
-          const n = Number(el.dataset.fl ?? 0);
-          const a = smooth((T - (linesAt + n * FREEDOM_LINE)) / (FREEDOM_LINE * 1.8));
-          el.style.opacity = a.toFixed(3);
-          el.style.transform = `translate3d(0, ${((1 - a) * 22).toFixed(1)}px, 0)`;
-        });
-
-        // The closing heading rises in under Freedom, and then the bar along
-        // the bottom rises in under both.
-        const he = smooth((T - headAt) / HEAD_IN);
-        if (he <= 0) {
-          hideEl(readyHead);
+        // The closing words rise in on the left.
+        const re = smooth((T - readyAt) / READY_IN);
+        if (re <= 0) {
+          ready.style.opacity = "0";
+          ready.style.visibility = "hidden";
         } else {
-          readyHead.style.opacity = he.toFixed(3);
-          readyHead.style.visibility = "visible";
-          readyHead.style.transform = `translate3d(0, ${((1 - he) * 40).toFixed(1)}px, 0)`;
-        }
-        const se = smooth((T - stripAt) / STRIP_IN);
-        if (se <= 0) {
-          hideEl(readyStrip);
-        } else {
-          readyStrip.style.opacity = se.toFixed(3);
-          readyStrip.style.visibility = "visible";
-          readyStrip.style.transform = `translate3d(0, ${((1 - se) * 56).toFixed(1)}px, 0)`;
+          ready.style.opacity = re.toFixed(3);
+          ready.style.visibility = "visible";
+          ready.style.transform = `translate3d(0, ${((1 - re) * 40).toFixed(1)}px, 0)`;
         }
       };
 
@@ -602,15 +573,13 @@ function Orbit({ photoSrc }: { photoSrc: string | null }) {
       return () => {
         ScrollTrigger.removeEventListener("refreshInit", fit);
         region.style.removeProperty("--fit-scale");
-        freedomFull?.style.removeProperty("--ff-scale");
-        delete region.dataset.rows;
         region.style.removeProperty("--rd-scale");
-        for (const el of [...all, photo, readyHead, readyStrip, ...lines]) {
+        delete region.dataset.rows;
+        for (const el of [...all, photo, ready, rail]) {
           el.style.transform = "";
           el.style.opacity = "";
           el.style.visibility = "";
           el.style.zIndex = "";
-          el.style.scale = "";
         }
       };
     });
@@ -683,7 +652,6 @@ function Orbit({ photoSrc }: { photoSrc: string | null }) {
             className={`${TRACK} ${scrub ? "orbit:contents" : ""}`}
           >
             {pillars.map((pillar, i) => {
-              const isFreedom = i === pillars.length - 1;
               return (
                 <article
                   key={pillar.id}
@@ -692,16 +660,14 @@ function Orbit({ photoSrc }: { photoSrc: string | null }) {
                   }}
                   aria-labelledby={`pillar-${pillar.id}`}
                   className={`type-orbit flex flex-col overflow-hidden rounded-[clamp(1.25rem,2vw,1.75rem)] bg-white p-[clamp(0.85rem,2.1vh,1.4rem)] text-ink shadow-[0_24px_60px_-34px_var(--shadow)] ${CAROUSEL_CARD} ${
-                    scrub ? (isFreedom ? `${STAGE_FREEDOM} orbit:rounded-[clamp(1.5rem,2.2vw,2.25rem)] orbit:p-0` : STAGE_CARD) : ""
+                    scrub ? STAGE_CARD : ""
                   }`}
                 >
                   <div
                     ref={(el) => {
                       innerRefs.current[i] = el;
                     }}
-                    className={`flex flex-col gap-[clamp(0.3rem,0.9vh,0.65rem)] ${
-                      isFreedom && scrub ? "orbit:hidden" : ""
-                    }`}
+                    className="flex flex-col gap-[clamp(0.3rem,0.9vh,0.65rem)]"
                   >
                     <div className="flex items-baseline justify-between gap-4">
                       <h3 id={`pillar-${pillar.id}`} className="t-big text-ink">
@@ -717,7 +683,6 @@ function Orbit({ photoSrc }: { photoSrc: string | null }) {
                       ))}
                     </div>
                   </div>
-                  {isFreedom && scrub && <FreedomFull pillar={pillar} count={pillars.length} />}
                 </article>
               );
             })}
@@ -728,87 +693,31 @@ function Orbit({ photoSrc }: { photoSrc: string | null }) {
           </div>
           </div>
 
+          {/* The progress rail: one tick for every pillar, lit while its card
+              is on the screen. Only on the stage. */}
           <div
-            ref={readyHeadRef}
-            className={`mt-[clamp(3rem,9vh,6rem)] ${scrub ? STAGE_RHEAD : ""}`}
+            ref={railRef}
+            aria-hidden="true"
+            className={`hidden gap-1 ${scrub ? STAGE_RAIL : ""}`}
+          >
+            {pillars.map((p) => (
+              <span
+                key={p.id}
+                data-on="false"
+                className="h-1 w-3.5 rounded-full bg-white/30 transition-colors duration-300 data-[on=true]:bg-white"
+              />
+            ))}
+          </div>
+
+          <div
+            ref={readyRef}
+            className={`mt-[clamp(3rem,9vh,6rem)] ${scrub ? STAGE_READY : ""}`}
           >
             <ReadyHeading staged={scrub} />
-          </div>
-          <div
-            ref={readyStripRef}
-            className={`mt-[clamp(1.5rem,4vh,2.5rem)] ${scrub ? STAGE_RSTRIP : ""}`}
-          >
             <ReadyStrip staged={scrub} />
           </div>
         </div>
       </div>
-    </div>
-  );
-}
-
-/**
- * Freedom as one card across the whole screen, for the stage. Big writing, in
- * two columns: the title and the first and last lines on the left, and the
- * seven things that go away down the right. Each piece carries a `data-fl`
- * number, the order in which it arrives as the visitor scrolls. It is only
- * shown on the stage (the carousel and the plain grid show the ordinary card).
- */
-function FreedomFull({ pillar, count }: { pillar: (typeof pillars)[number]; count: number }) {
-  const paragraphs = pillar.body.filter((b): b is Extract<Block, { kind: "p" }> => b.kind === "p");
-  const list = pillar.body.find((b): b is Extract<Block, { kind: "lines" }> => b.kind === "lines");
-  const [imagine, ...closing] = paragraphs;
-  const items = list?.items ?? [];
-
-  return (
-    <div
-      data-freedom-full=""
-      className="type-freedom hidden h-full w-full grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] gap-x-[clamp(2rem,5vw,6rem)] overflow-hidden p-[clamp(1.5rem,3.6vw,4.5rem)] orbit:grid"
-    >
-      <div className="flex min-h-0 flex-col">
-        <p aria-hidden="true" className="t-fit-strong text-royal-600">
-          {String(count).padStart(2, "0")} / {String(count).padStart(2, "0")}
-        </p>
-        <h3 className="t-mega mt-[0.15em] text-royal-gradient">{pillar.title}</h3>
-        <p data-fl="0" className="t-big mt-[clamp(0.6rem,2.4vh,1.75rem)] text-ink-soft">
-          {imagine.text}
-        </p>
-        <div className="mt-auto flex flex-col gap-[0.25em] pt-[0.8em]">
-          {closing.map((p, i) => (
-            <p
-              key={p.text}
-              data-fl={items.length + 1 + i}
-              className={`t-big ${i === closing.length - 1 ? "text-royal-gradient" : "text-ink"}`}
-            >
-              {p.text}
-            </p>
-          ))}
-        </div>
-      </div>
-
-      <ul className="flex min-h-0 flex-col justify-center gap-[clamp(0.5rem,1.8vh,1.5rem)]">
-        {items.map((item, i) => (
-          <li key={item} data-fl={i + 1} className="t-big flex items-center gap-[0.55em] text-ink">
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              aria-hidden="true"
-              className="h-[1em] w-[1em] shrink-0 text-royal-600"
-            >
-              <circle cx="12" cy="12" r="11" fill="currentColor" />
-              <path
-                d="M7.2 12.4l3.1 3.1 6.5-7.2"
-                stroke="#fff"
-                strokeWidth="2.6"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-            <span>
-              <Rich text={item} />
-            </span>
-          </li>
-        ))}
-      </ul>
     </div>
   );
 }
@@ -838,9 +747,9 @@ function ReadyPart({
 }
 
 /**
- * "Ready to take back control of your practice?" On the stage it sits at the
- * bottom right, under Freedom; on a phone, or with reduced motion, it simply
- * follows the cards, centred.
+ * "Ready to take back control of your practice?" On the stage it is the top of
+ * the column on the left, left aligned; on a phone, or with reduced motion, it
+ * simply follows the cards, centred.
  */
 function ReadyHeading({ staged }: { staged: boolean }) {
   const [first, second] = readyBlock.headingParts;
@@ -860,25 +769,22 @@ function ReadyHeading({ staged }: { staged: boolean }) {
 }
 
 /**
- * The line and the Book a Call button. On the stage they run across the whole
- * of the bottom of the screen, in a bar; on a phone, or with reduced motion,
- * they follow the heading, centred.
+ * The line and the Book a Call button, under the heading in the same column.
+ * Centred on a phone or with reduced motion, left aligned on the stage.
  */
 function ReadyStrip({ staged }: { staged: boolean }) {
   return (
     <div
       className={`type-ready ${
-        staged
-          ? "type-ready-stage orbit:h-full orbit:max-w-none orbit:flex-row orbit:justify-between orbit:gap-[clamp(1.5rem,4vw,4rem)] orbit:rounded-[clamp(1.25rem,2vw,2rem)] orbit:border orbit:border-white/30 orbit:bg-white/[0.13] orbit:px-[clamp(1.25rem,3vw,3.25rem)] orbit:text-left"
-          : ""
+        staged ? "type-ready-stage orbit:mx-0 orbit:max-w-none orbit:items-start orbit:px-0 orbit:text-left" : ""
       } mx-auto flex max-w-[1500px] flex-col items-center px-6 text-center sm:px-10`}
     >
-      <ReadyPart staged={staged} className={staged ? "orbit:flex-1" : ""}>
-        <p className="t-text max-w-[46ch] text-balance text-white/95 orbit:max-w-[64ch] orbit:text-pretty">
+      <ReadyPart staged={staged}>
+        <p className="t-text mt-[clamp(0.9rem,3vh,2rem)] max-w-[46ch] text-balance text-white/95 orbit:text-pretty">
           {readyBlock.body}
         </p>
       </ReadyPart>
-      <ReadyPart staged={staged} delay={0.12} className="mt-[clamp(1.1rem,3.8vh,2.5rem)] orbit:mt-0 orbit:shrink-0">
+      <ReadyPart staged={staged} delay={0.12} className="mt-[clamp(1.1rem,3.8vh,2.5rem)]">
         <BookCallButton size="xl" />
       </ReadyPart>
     </div>
