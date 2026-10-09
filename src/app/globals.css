@@ -531,6 +531,34 @@ html[data-footer="static"] .page-shell {
 }
 
 /*
+  type-scatter: the heading in the middle of the scattered pain cards. Big and
+  white, tied to the height as well as the width so it stays clear of the
+  cards round it. type-scatter-card: a scattered card's text is sized in em
+  from the card itself (the card's font size is set from its width by the
+  scatter), so the writing and the card always scale together.
+*/
+.type-scatter {
+  --fs-big: clamp(1.9rem, min(3.9vw, 7vh), 4.25rem);
+}
+
+@media (max-width: 1023px) {
+  .type-scatter {
+    --fs-big: clamp(1.7rem, 6.4vw, 3.2rem);
+  }
+}
+
+@media (max-width: 767px) {
+  .type-scatter {
+    --fs-big: clamp(1.55rem, 7.2vw, 2rem);
+  }
+}
+
+.type-scatter-card {
+  --fs-big: 1em;
+  --fs-text: 0.78em;
+}
+
+/*
   type-panels: the two-sided comparison panels (Purchased and Sold, and Is
   Dental Coaching For Me?). Compact, about 1180px wide and never taller than the
   screen, so it reads whole on a 15 inch laptop; the pinned layout shrinks the

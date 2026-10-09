@@ -3,103 +3,32 @@
 import { useLayoutEffect, useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import {
-  familiarAfter,
-  familiarHeading,
-  familiarResolve,
-  painQuotes,
-} from "@/lib/familiar";
+import { familiarAfter, familiarResolve } from "@/lib/familiar";
 import { SCRUB } from "@/lib/scrollFeel";
 import { useReducedMotion } from "@/lib/useReducedMotion";
 import BookCallButton from "./BookCallButton";
-import CardStack from "./CardStack";
+import PainScatter from "./PainScatter";
 import Rich from "./Rich";
 import { Reveal, ScrollLine } from "./Reveal";
 
 gsap.registerPlugin(ScrollTrigger);
 
-const LABELS = painQuotes.map((q, i) => `${q.tag}, ${i + 1} of ${painQuotes.length}`);
-
-/*
- * The cards are white with near-black writing and close to square. Two are on
- * screen at a time, one on each pile. The last one, the frustration card, is
- * wider and taller than the rest and lands alone in the middle. They arrive in
- * side by side pairs, with a gap down the middle. Full class
- * strings, since Tailwind only generates classes it can read whole.
- */
-const CARD =
-  "w-full rounded-[clamp(1.25rem,2.2vw,2rem)] bg-white text-ink-black shadow-[0_24px_60px_-28px_oklch(0.14_0.09_264/0.8)] max-md:shadow-[0_10px_22px_-12px_oklch(0.14_0.09_264/0.75)]";
-const CARD_LAST =
-  "mx-auto w-full max-w-[46rem] rounded-[clamp(1.5rem,2.6vw,2.5rem)] bg-white text-ink-black shadow-[0_34px_90px_-30px_oklch(0.12_0.09_264/0.9)] max-md:shadow-[0_12px_26px_-14px_oklch(0.12_0.09_264/0.8)]";
-
 /**
  * "Do any of these sound familiar?..." into "Dental Growth Lab can fix this."
  *
- * The section sits on the Style 2 blue. The pain points are white cards in a
- * two-up rolodex: two cards are on screen at a time, each new one rising onto
- * its pile, so the run is quick. The final card, the frustration one, lands
- * alone, bigger, and is held for a moment. Then
- * "Dental Growth Lab" arrives, followed by "can fix this." with "fix this"
- * underlined, and the reframe copy rolls up line by line.
+ * The section sits on the Style 2 blue. The pain points are ten white cards
+ * scattered round the heading that drift, then gather into one pile; the
+ * frustration card rises onto the pile and is held (PainScatter). Then the pile
+ * lifts away and "Dental Growth Lab" arrives, followed by "can fix this." with
+ * "fix this" underlined, and the reframe copy rolls up line by line.
  */
 export default function FeelFamiliar() {
   return (
     <section id="feel-familiar" className="section-rich">
-      <Intro />
-      <Cards />
+      <PainScatter />
       <FixThis />
       <FamiliarCopy />
     </section>
-  );
-}
-
-function Intro() {
-  return (
-    <div className="type-compact mx-auto max-w-[1100px] px-6 pb-[clamp(2rem,6vh,4rem)] pt-[calc(var(--header-h)+clamp(3rem,10vh,6rem))] text-center sm:px-10">
-      <ScrollLine>
-        <h2 className="t-big text-balance text-white">{familiarHeading}</h2>
-      </ScrollLine>
-    </div>
-  );
-}
-
-function Cards() {
-  return (
-    <CardStack
-      className="type-card mx-auto max-w-[1180px] px-[clamp(0.75rem,3vw,2.5rem)]"
-      count={painQuotes.length}
-      labels={LABELS}
-      maxCardH={420}
-      maxCardHSmall={290}
-      stepRatio={0.9}
-      stepRatioSmall={0.8}
-      finalLead={0.5}
-      gap="clamp(1rem, 4vh, 2.25rem)"
-      shadeClassName="bg-[oklch(0.2_0.06_264)]"
-      articleClassName={CARD}
-      lastArticleClassName={CARD_LAST}
-      lastGrow={1.3}
-      lastHold="70svh"
-      renderCard={(i, isLast) => {
-        const q = painQuotes[i];
-        return (
-          <figure
-            className={`flex h-full flex-col gap-4 p-[clamp(1.25rem,2.6vw,2.25rem)] ${
-              isLast ? "type-finale" : ""
-            }`}
-          >
-            <figcaption>
-              <span className="t-text-strong inline-block rounded-full bg-ink-black/[0.07] px-4 py-1 text-ink-black">
-                {q.tag}
-              </span>
-            </figcaption>
-            <blockquote className="t-big flex flex-1 items-start text-balance text-ink-black md:items-center">
-              <p>&ldquo;{q.quote}&rdquo;</p>
-            </blockquote>
-          </figure>
-        );
-      }}
-    />
   );
 }
 

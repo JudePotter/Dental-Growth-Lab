@@ -1,7 +1,9 @@
 /**
  * The "Do any of these sound familiar?..." section: the pain-point cards and
- * the copy around them. Every quote is from the copy doc, in the doc's order,
- * so the last card is the frustration one. The doc's clear typos are fixed
+ * the copy around them. Eleven quotes, all from the copy doc, in the order the
+ * client chose (8 Oct), so the last card is the frustration one: the first ten
+ * are scattered round the heading and gathered into a pile, the last rises on
+ * top of it. The doc's clear typos are fixed
  * ("practices" to "practice’s", "google" to "Google", a stray capital).
  *
  * Text in **double asterisks** is highlighted in the doc and renders bold.
@@ -20,30 +22,19 @@ export const painQuotes: PainQuote[] = [
   },
   { tag: "Finance", quote: "Everyone else gets paid apart from me." },
   {
-    tag: "Finance",
-    quote: "If I stopped working clinically, the practice would lose money.",
-  },
-  {
-    tag: "Finance",
+    tag: "Staff",
     quote:
-      "The staff think I’m sleeping on a bed of money. They couldn’t be further from the truth. I’m working five days a week and more, just to keep the practice going and to make sure everyone gets paid.",
+      "I ask staff to do things...and they just don’t get done. No one seems to listen or take responsibility or care. Am I the only one who cares about the practice?",
   },
-  {
-    tag: "Finance",
-    quote:
-      "For what I do, I feel like I’m the lowest paid member of staff, with the most responsibility. I’ve calculated, if I was an associate my percentage would be 15%. How did it get to this?",
-  },
-  { tag: "Stress", quote: "I’m the practice’s emergency department." },
-  { tag: "Home Life", quote: "My family get a very poor version of me." },
   {
     tag: "Burn Out",
     quote:
       "I dread coming to work. I can’t wait for the day to end and to be on the drive home, away from here.",
   },
   {
-    tag: "Frustration",
+    tag: "Reception",
     quote:
-      "After all my hard work I’ve put into the business, the practice is nowhere near where I thought it would be by now. I don’t know what to do.",
+      "I’ve literally walked past reception, heard the phone ringing and no one picks it up.",
   },
   {
     tag: "Practice Manager",
@@ -52,43 +43,14 @@ export const painQuotes: PainQuote[] = [
   },
   {
     tag: "Stress",
-    quote:
-      "As soon as I step in the door everyone wants a piece of me. I spend the whole day sorting out issues, between seeing patients, when I should be focusing on patients, or on the business. It’s so stressful.",
-  },
-  {
-    tag: "Staff",
-    quote:
-      "I ask staff to do things...and they just don’t get done. No one seems to listen or take responsibility or care. Am I the only one who cares about the practice?",
-  },
-  {
-    tag: "Nurse + Reception",
-    quote:
-      "Today I asked one of the nurses to get the day list and check the lab work for the day AGAIN. This is the 5th time I’ve said it in last 2 weeks. Why am I still saying this? Why do I still have to micromanage?",
-  },
-  {
-    tag: "Reception",
-    quote:
-      "I’ve literally walked past reception, heard the phone ringing and no one picks it up.",
-  },
-  {
-    tag: "Systems + Reception",
-    quote:
-      "We’re spending thousands to get new patients and then I have no idea what happens to them. God knows how many patients we’re losing because of reception.",
-  },
-  {
-    tag: "Systems + Recruitment",
-    quote:
-      "One of my nurses just handed her notice in. My heart sank. Another resignation. How am I going to replace her in just 4 weeks. No one seems to understand how hard this is.",
+    quote: "I bought a practice for freedom. Instead I feel trapped.",
   },
   {
     tag: "Systems",
     quote:
       "Complaint after complaint. And my Google reviews are shocking. How do I get on top of this.",
   },
-  {
-    tag: "Stress",
-    quote: "I bought a practice for freedom. Instead I feel trapped.",
-  },
+  { tag: "Home Life", quote: "My family get a very poor version of me." },
   {
     tag: "Frustration",
     quote: "I know things need to change, I just don’t know where to start.",
